@@ -24,13 +24,13 @@ def detectar_acessos_horarios_diferentes(df):
     df['ultimo_acesso'] = df['ultimo_acesso'].apply(tratar_data_acesso)
     df = df.dropna(subset=['ultimo_acesso'])  # Remover linhas com data inválida
     df['hora'] = df['ultimo_acesso'].dt.hour
-    
+
     # Detecção de acessos fora de um padrão "normal"
     acessos_madrugada = df[df['hora'].between(0, 6)]  # Acessos de 00h a 06h
     acessos_manha = df[df['hora'].between(7, 11)]  # Acessos de 07h a 11h
     acessos_tarde = df[df['hora'].between(12, 17)]  # Acessos de 12h a 17h
     acessos_noite = df[df['hora'].between(18, 23)]  # Acessos de 18h a 23h
-    
+
     # Gráfico de Acessos por horário
     plt.figure(figsize=(10, 6))
     acessos_por_hora = df['hora'].value_counts().sort_index()
@@ -41,7 +41,7 @@ def detectar_acessos_horarios_diferentes(df):
     plt.xticks(rotation=0)
     plt.tight_layout()
     plt.show()
-    
+
     # Tabela de acessos por período
     acessos_por_periodo = {
         "Madrugada (00h-06h)": len(acessos_madrugada),
@@ -51,7 +51,7 @@ def detectar_acessos_horarios_diferentes(df):
     }
     print("\nAcessos por período:")
     print(pd.DataFrame(list(acessos_por_periodo.items()), columns=["Período", "Quantidade de Acessos"]))
-    
+
     # Analisar acessos em horários "incomuns"
     acessos_incomuns = pd.concat([acessos_madrugada, acessos_noite])
     if not acessos_incomuns.empty:
@@ -65,10 +65,10 @@ def detectar_acessos_repetidos(df, intervalo_maximo=5):
     """
     df['ultimo_acesso'] = pd.to_datetime(df['ultimo_acesso'])
     df['diferenca'] = df['ultimo_acesso'].diff().fillna(pd.Timedelta(seconds=0))
-    
+
     # Filtrar acessos ao mesmo site em um curto intervalo de tempo
     acessos_repetidos = df[df['diferenca'] < pd.Timedelta(minutes=intervalo_maximo)]
-    
+
     if not acessos_repetidos.empty:
         print(f"\nAcessos repetidos detectados em intervalos menores que {intervalo_maximo} minutos:")
         print(acessos_repetidos[['url', 'ultimo_acesso', 'diferenca']].head())
@@ -76,26 +76,26 @@ def detectar_acessos_repetidos(df, intervalo_maximo=5):
 # Função para processar todos os arquivos JSON da pasta "artefatos/historico"
 def processar_historico_da_pasta(pasta):
     arquivos_json = [f for f in os.listdir(pasta) if f.endswith('.json')]  # Filtrar arquivos .json
-    
+
     if not arquivos_json:
         print("[ALERTA] Nenhum arquivo JSON encontrado na pasta especificada.")
         return
-    
+
     for arquivo in arquivos_json:
         caminho_arquivo = os.path.join(pasta, arquivo)
         try:
             print(f"\n[INFO] Processando arquivo: {caminho_arquivo}")
-            
+
             # Carregar os dados do JSON
             dados = carregar_json(caminho_arquivo)
-            
+
             # Criar DataFrame com os dados do histórico
             df = pd.DataFrame(dados)
-            
+
             # Detectar padrões e comportamentos incomuns
             detectar_acessos_horarios_diferentes(df)
             detectar_acessos_repetidos(df, intervalo_maximo=5)  # 5 minutos como exemplo
-        
+
         except Exception as erro:
             print(f"\n❌ Erro ao processar o arquivo {arquivo}: {erro}")
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     try:
         # Caminho da pasta onde estão os arquivos JSON
         pasta_json = "artefatos/historico"
-        
+
         # Processar os arquivos da pasta
         processar_historico_da_pasta(pasta_json)
 

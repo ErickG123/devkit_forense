@@ -194,6 +194,6 @@ def recuperar_historico_edge(usuario):
 
 # Exemplo de uso
 usuario = os.getlogin()
-recuperar_historico_chrome(usuario)
+# recuperar_historico_chrome(usuario)
 recuperar_historico_edge(usuario)
 # recuperar_historico_firefox(usuario)

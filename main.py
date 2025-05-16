@@ -9,12 +9,12 @@ import argparse
 #     exibir_arquivos_duplicados,
 #     exibir_extensao_dupla
 # )
-from modules.browser_history import (
+from modules.browsers.browser_history import (
     recuperar_historico_chrome,
     recuperar_historico_edge,
     recuperar_historico_firefox
 )
-from modules.unusual_patterns import processar_historico_da_pasta
+from modules.browsers.unusual_patterns import processar_historico_da_pasta
 
 # Força UTF-8 no terminal (Windows-safe)
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')

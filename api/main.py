@@ -10,15 +10,10 @@ import core.models.schemas as schemas
 
 CLI_PYTHON = sys.executable
 
-# Criar tabelas
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="DevKit Forense API")
 
-
-# -----------------------------
-# Função de dependência do DB
-# -----------------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -26,10 +21,6 @@ def get_db():
     finally:
         db.close()
 
-
-# -----------------------------
-# Módulos
-# -----------------------------
 @app.post("/modules/", response_model=schemas.Module)
 def create_module(module: schemas.ModuleCreate, db: Session = Depends(get_db)):
     db_module = orm.Module(name=module.name, description=module.description)
@@ -43,10 +34,6 @@ def create_module(module: schemas.ModuleCreate, db: Session = Depends(get_db)):
 def get_modules(db: Session = Depends(get_db)):
     return db.query(orm.Module).all()
 
-
-# -----------------------------
-# Funcionalidades
-# -----------------------------
 @app.post("/functionalities/", response_model=schemas.Functionality)
 def create_functionality(functionality: schemas.FunctionalityCreate, db: Session = Depends(get_db)):
     db_func = orm.Functionality(
@@ -64,10 +51,6 @@ def create_functionality(functionality: schemas.FunctionalityCreate, db: Session
 def get_functionalities(db: Session = Depends(get_db)):
     return db.query(orm.Functionality).all()
 
-
-# -----------------------------
-# Results
-# -----------------------------
 @app.post("/results/", response_model=schemas.Result)
 def create_result(result: schemas.ResultCreate, db: Session = Depends(get_db)):
     db_result = orm.Result(
@@ -89,10 +72,6 @@ def get_results(db: Session = Depends(get_db)):
 def get_results_by_functionality(func_id: str, db: Session = Depends(get_db)):
     return db.query(orm.Result).filter(orm.Result.functionality_id == func_id).all()
 
-
-# -----------------------------
-# Reports
-# -----------------------------
 @app.post("/reports/", response_model=schemas.Report)
 def create_report(report: schemas.ReportCreate, db: Session = Depends(get_db)):
     db_report = orm.Report(result_id=report.result_id, file_path=report.file_path)
@@ -111,10 +90,6 @@ def get_reports(db: Session = Depends(get_db)):
 def get_reports_by_result(result_id: str, db: Session = Depends(get_db)):
     return db.query(orm.Report).filter(orm.Report.result_id == result_id).all()
 
-
-# -----------------------------
-# Execução da CLI
-# -----------------------------
 @app.post("/functionalities/{func_id}/run")
 def run_functionality(func_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     func = db.query(orm.Functionality).filter(orm.Functionality.id == func_id).first()

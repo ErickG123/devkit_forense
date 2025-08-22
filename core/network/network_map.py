@@ -1,4 +1,3 @@
-# core/network/network_map.py
 from core.network.ping_sweep import ping_sweep
 from core.network.port_scanner import scan_host
 from core.network.utils import get_mac, get_vendor, get_hostname

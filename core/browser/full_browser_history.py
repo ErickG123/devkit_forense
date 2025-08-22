@@ -89,7 +89,6 @@ def localizar_bancos_e_extrair():
     usuario = os.getlogin()
     home = str(Path.home())
 
-    # Chrome
     caminho_chrome = os.path.join(home, "AppData", "Local", "Google", "Chrome", "User Data", "Default", "History")
     if os.path.exists(caminho_chrome):
         print("[*] Extraindo histórico do Chrome...")
@@ -97,7 +96,6 @@ def localizar_bancos_e_extrair():
     else:
         print("[!] Chrome não encontrado.")
 
-    # Edge
     caminho_edge = os.path.join(home, "AppData", "Local", "Microsoft", "Edge", "User Data", "Default", "History")
     if os.path.exists(caminho_edge):
         print("[*] Extraindo histórico do Edge...")
@@ -105,7 +103,6 @@ def localizar_bancos_e_extrair():
     else:
         print("[!] Edge não encontrado.")
 
-    # Firefox
     caminho_firefox_perfis = os.path.join(home, "AppData", "Roaming", "Mozilla", "Firefox", "Profiles")
     if os.path.exists(caminho_firefox_perfis):
         for perfil in os.listdir(caminho_firefox_perfis):

@@ -33,13 +33,11 @@ def recuperar_historico_chrome(usuario):
             cursor = conn.cursor()
             print("Conexão bem-sucedida ao banco de dados do Chrome.")
 
-            # Consultando as últimas 10 URLs visitadas
             cursor.execute("SELECT url, title, visit_count, last_visit_time FROM urls ORDER BY last_visit_time DESC LIMIT 10;")
             rows_ultimas = cursor.fetchall()
             if not rows_ultimas:
                 print("Nenhuma URL encontrada no histórico do Chrome.")
 
-            # Consultando os Top 5 sites mais acessados
             cursor.execute("SELECT url, SUM(visit_count) as total_visitas FROM urls GROUP BY url ORDER BY total_visitas DESC LIMIT 5;")
             rows_top5 = cursor.fetchall()
             if not rows_top5:
@@ -51,7 +49,6 @@ def recuperar_historico_chrome(usuario):
                 "top_5_sites": []
             }
 
-            # Adicionando as últimas 10 URLs acessadas
             for row in rows_ultimas:
                 url, title, visit_count, last_visit_time = row
                 timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_visit_time / 1000000 - 11644473600))
@@ -62,7 +59,6 @@ def recuperar_historico_chrome(usuario):
                     "last_visit_time": timestamp
                 })
 
-            # Adicionando os 5 sites mais acessados
             for row in rows_top5:
                 url, total_visitas = row
                 historico["top_5_sites"].append({
@@ -70,7 +66,6 @@ def recuperar_historico_chrome(usuario):
                     "total_visitas": total_visitas
                 })
 
-            # Salvando o histórico em JSON
             salvar_historico_em_json(historico, f"{usuario}_historico_chrome.json")
 
         except Exception as e:
@@ -84,7 +79,6 @@ def recuperar_historico_firefox(usuario):
     print(f"Tentando acessar o histórico do Firefox para o usuário {usuario}...")
     caminho_perfil_firefox = os.path.expanduser("~") + r"\AppData\Roaming\Mozilla\Firefox\Profiles"
 
-    # Encontrar o perfil do Firefox
     for pasta in os.listdir(caminho_perfil_firefox):
         caminho_perfil = os.path.join(caminho_perfil_firefox, pasta)
         if os.path.isdir(caminho_perfil):
@@ -98,7 +92,6 @@ def recuperar_historico_firefox(usuario):
                     cursor = conn.cursor()
                     print("Conexão bem-sucedida ao banco de dados do Firefox.")
 
-                    # Consultando as últimas 10 URLs visitadas
                     cursor.execute("SELECT url, title, visit_count, last_visit_date FROM moz_places ORDER BY last_visit_date DESC LIMIT 10;")
                     rows_ultimas = cursor.fetchall()
                     if not rows_ultimas:
@@ -109,7 +102,6 @@ def recuperar_historico_firefox(usuario):
                         "historico_ultimas_urls": []
                     }
 
-                    # Adicionando as últimas 10 URLs acessadas
                     for row in rows_ultimas:
                         url, title, visit_count, last_visit_date = row
                         timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(last_visit_date / 1000000))
@@ -120,7 +112,6 @@ def recuperar_historico_firefox(usuario):
                             "last_visit_date": timestamp
                         })
 
-                    # Salvando o histórico em JSON
                     salvar_historico_em_json(historico, f"{usuario}_historico_firefox.json")
 
                 except Exception as e:
@@ -145,13 +136,11 @@ def recuperar_historico_edge(usuario):
             cursor = conn.cursor()
             print("Conexão bem-sucedida ao banco de dados do Edge.")
 
-            # Consultando as últimas 10 URLs visitadas
             cursor.execute("SELECT url, title, visit_count, last_visit_time FROM urls ORDER BY last_visit_time DESC LIMIT 10;")
             rows_ultimas = cursor.fetchall()
             if not rows_ultimas:
                 print("Nenhuma URL encontrada no histórico do Edge.")
 
-            # Consultando os Top 5 sites mais acessados
             cursor.execute("SELECT url, SUM(visit_count) as total_visitas FROM urls GROUP BY url ORDER BY total_visitas DESC LIMIT 5;")
             rows_top5 = cursor.fetchall()
             if not rows_top5:
@@ -163,7 +152,6 @@ def recuperar_historico_edge(usuario):
                 "top_5_sites": []
             }
 
-            # Adicionando as últimas 10 URLs acessadas
             for row in rows_ultimas:
                 url, title, visit_count, last_visit_time = row
                 timestamp = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_visit_time / 1000000 - 11644473600))
@@ -174,7 +162,6 @@ def recuperar_historico_edge(usuario):
                     "last_visit_time": timestamp
                 })
 
-            # Adicionando os 5 sites mais acessados
             for row in rows_top5:
                 url, total_visitas = row
                 historico["top_5_sites"].append({
@@ -182,7 +169,6 @@ def recuperar_historico_edge(usuario):
                     "total_visitas": total_visitas
                 })
 
-            # Salvando o histórico em JSON
             salvar_historico_em_json(historico, f"{usuario}_historico_edge.json")
 
         except Exception as e:
@@ -192,8 +178,6 @@ def recuperar_historico_edge(usuario):
     else:
         print(f"O banco de dados do Edge não foi encontrado. Verifique o caminho.")
 
-# Exemplo de uso
 usuario = os.getlogin()
 recuperar_historico_chrome(usuario)
 recuperar_historico_edge(usuario)
-# recuperar_historico_firefox(usuario)

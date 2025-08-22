@@ -18,7 +18,7 @@ def extract_ips_from_received(received_headers):
     for header in received_headers:
         found_ips = IP_REGEX.findall(header)
         ips.extend(found_ips)
-    return list(set(ips))  # Remove duplicados
+    return list(set(ips))
 
 def analyze_email_headers(email_data):
     headers_to_check = ["received", "authentication-results", "spf", "dkim", "dmarc"]

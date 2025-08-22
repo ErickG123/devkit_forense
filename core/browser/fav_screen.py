@@ -9,16 +9,13 @@ from io import BytesIO
 import hashlib
 import time
 
-# Criação de pastas
 os.makedirs("artefatos/favicons", exist_ok=True)
 os.makedirs("artefatos/prints", exist_ok=True)
 
-# Carregar JSONs de histórico
 def carregar_json(caminho):
     with open(caminho, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-# Extrair URLs válidas de um histórico
 def extrair_urls_validas(dados_json):
     urls = []
     for entrada in dados_json:
@@ -27,7 +24,6 @@ def extrair_urls_validas(dados_json):
             urls.append(url)
     return urls
 
-# Download do favicon
 def baixar_favicon(url, pasta_destino="artefatos/favicons"):
     try:
         dominio = urlparse(url).netloc
@@ -44,7 +40,6 @@ def baixar_favicon(url, pasta_destino="artefatos/favicons"):
     except Exception as e:
         print(f"[FAVICON] Erro ao baixar de {url}: {e}")
 
-# Captura de print com Selenium
 def capturar_print(url, pasta_destino="artefatos/prints"):
     try:
         nome_arquivo = hashlib.md5(url.encode()).hexdigest() + ".png"
@@ -58,21 +53,19 @@ def capturar_print(url, pasta_destino="artefatos/prints"):
         driver = webdriver.Chrome(options=chrome_options)
         driver.set_page_load_timeout(10)
         driver.get(url)
-        time.sleep(3)  # esperar renderizar
+        time.sleep(3)
         driver.save_screenshot(caminho)
         driver.quit()
         print(f"[PRINT] Capturado: {url}")
     except Exception as e:
         print(f"[PRINT] Erro ao capturar print de {url}: {e}")
 
-# Processar lista de URLs
 def processar_urls(urls):
     for url in urls:
         print(f"\n[PROCESSANDO] {url}")
         baixar_favicon(url)
         capturar_print(url)
 
-# Main
 if __name__ == "__main__":
     try:
         pasta_jsons = "artefatos/historico"
@@ -89,7 +82,7 @@ if __name__ == "__main__":
                 print(f"[AVISO] Arquivo não encontrado: {caminho}")
 
         if todas_urls:
-            todas_urls = list(set(todas_urls))  # remove duplicadas
+            todas_urls = list(set(todas_urls))
             processar_urls(todas_urls)
             print("\n✅ Processamento finalizado.")
         else:

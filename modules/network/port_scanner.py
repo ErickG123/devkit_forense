@@ -1,93 +1,105 @@
 import socket
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 import json
 import csv
-import argparse
-import platform
-import subprocess
-from datetime import datetime
-from tqdm import tqdm
 
-def is_host_up(host):
-    """Verifica se o host está ativo usando ping"""
-    param = "-n" if platform.system().lower() == "windows" else "-c"
-    try:
-        subprocess.check_output(["ping", param, "1", host], stderr=subprocess.DEVNULL)
-        return True
-    except subprocess.CalledProcessError:
-        return False
+COMMON_TCP_PORTS = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445,
+                    3389, 3306, 8080, 8443, 5900, 135, 995, 993, 1723]
 
-def detect_banner(sock, host, port):
-    """Tenta identificar o banner de um serviço"""
-    try:
-        sock.settimeout(2)
-        if port == 80:
-            sock.send(b"HEAD / HTTP/1.1\r\nHost: " + host.encode() + b"\r\n\r\n")
-        banner = sock.recv(1024)
-        return banner.decode(errors='ignore').strip()
-    except:
-        return "N/A"
+COMMON_UDP_PORTS = [53, 69, 123, 161, 162, 500, 514]
 
-def scan_port(host, port):
-    """Escaneia uma única porta"""
+PORT_ALERTS = {
+    21: "FTP",
+    22: "SSH",
+    23: "Telnet",
+    25: "SMTP",
+    53: "DNS",
+    80: "HTTP",
+    443: "HTTPS",
+    445: "SMB",
+    3306: "MySQL",
+    3389: "RDP"
+}
+
+def scan_tcp(ip, port, results):
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.settimeout(1)
-            if sock.connect_ex((host, port)) == 0:
-                banner = detect_banner(sock, host, port)
-                return {"port": port, "status": "open", "banner": banner}
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(1)
+            if s.connect_ex((ip, port)) == 0:
+                banner = ""
+                try:
+                    if port == 80 or port == 443:
+                        s.send(b"HEAD / HTTP/1.0\r\n\r\n")
+                        banner = s.recv(1024).decode(errors="ignore").strip()
+                except:
+                    pass
+                results.append({
+                    "port": port,
+                    "protocol": "TCP",
+                    "status": "open",
+                    "banner": banner if banner else "sem banner",
+                    "alert": PORT_ALERTS.get(port)
+                })
     except:
         pass
-    return None
 
-def save_results(results, filename, format="json"):
-    """Salva os resultados em JSON ou CSV"""
-    if format == "json":
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=4)
-    elif format == "csv":
-        with open(filename, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=["host", "port", "banner"])
-            writer.writeheader()
-            for item in results:
-                writer.writerow(item)
+def scan_udp(ip, port, results):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.settimeout(1)
+            s.sendto(b"", (ip, port))
+            try:
+                data, _ = s.recvfrom(1024)
+                banner = data.decode(errors="ignore").strip()
+            except:
+                banner = "sem resposta"
+            results.append({
+                "port": port,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": banner,
+                "alert": PORT_ALERTS.get(port)
+            })
+    except:
+        pass
 
-def main():
-    parser = argparse.ArgumentParser(description="Scanner de portas e detecção de banners")
-    parser.add_argument("host", help="Endereço IP ou hostname do alvo")
-    parser.add_argument("--intenso", action="store_true", help="Escanear da porta 1 até 1024")
-    parser.add_argument("--todas", action="store_true", help="Escanear todas as 65535 portas")
-    parser.add_argument("--saida", help="Salvar resultado em arquivo (JSON ou CSV)")
-    parser.add_argument("--formato", choices=["json", "csv"], default="json", help="Formato de saída")
-    args = parser.parse_args()
+def scan_host(ip, tcp_ports=None, udp_ports=None):
+    tcp_ports = tcp_ports or COMMON_TCP_PORTS
+    udp_ports = udp_ports or COMMON_UDP_PORTS
+    results = []
 
-    host = args.host
-    print(f"\n[+] Iniciando varredura em {host} - {datetime.now().strftime('%H:%M:%S')}")
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        for port in tcp_ports:
+            executor.submit(scan_tcp, ip, port, results)
+        for port in udp_ports:
+            executor.submit(scan_udp, ip, port, results)
     
-    if not is_host_up(host):
-        print(f"[-] Host {host} inativo ou inacessível.\n")
-        return
+    return results
 
-    if args.todas:
-        portas = range(1, 65536)
-    elif args.intenso:
-        portas = range(1, 1025)
-    else:
-        portas = [21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 443, 445, 3306, 3389]
+def save_results(results, ip):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    json_file = f"scan_{ip}_{timestamp}.json"
+    csv_file = f"scan_{ip}_{timestamp}.csv"
 
-    resultados = []
+    with open(json_file, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=4, ensure_ascii=False)
 
-    for porta in tqdm(portas, desc="Escaneando"):
-        resultado = scan_port(host, porta)
-        if resultado:
-            resultado["host"] = host
-            resultados.append(resultado)
-            print(f"[+] Porta {porta} aberta | Banner: {resultado['banner'][:60]}")
+    with open(csv_file, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["port", "protocol", "status", "banner", "alert"])
+        writer.writeheader()
+        for r in results:
+            writer.writerow(r)
 
-    if args.saida:
-        save_results(resultados, args.saida, args.formato)
-        print(f"\n[✔] Resultados salvos em: {args.saida}")
-
-    print("\n[✓] Varredura finalizada.")
+    print(f"✅ Resultados salvos em JSON: {json_file} e CSV: {csv_file}")
 
 if __name__ == "__main__":
-    main()
+    ip = input("Digite o IP do host a escanear: ")
+    print(f"\n[+] Escaneando {ip}...")
+    host_results = scan_host(ip)
+    
+    for r in host_results:
+        alert_msg = f" | ALERT: {r['alert']}" if r['alert'] else ""
+        print(f"Porta {r['port']} ({r['protocol']}) aberta | {r['banner'][:60]}{alert_msg}")
+
+    save_results(host_results, ip)

@@ -1,74 +1,124 @@
-# 🔍 DevKit Forense - Módulo de Navegadores
+# DevKit Forense – Documento de Funcionalidades
 
-Este projeto é parte de uma Iniciação Científica focada no desenvolvimento de um **toolkit modular para análise de evidências digitais**, com o objetivo de automatizar a extração e análise de artefatos forenses em ambientes simulados.
+## 1. Introdução
 
-## 📦 Módulo Atual: Navegadores Web
+**Objetivo:**  
+O DevKit Forense é uma suíte de ferramentas educacionais para análise de evidências digitais, projetada para auxiliar no ensino de perícia digital. Ele combina uma **CLI principal** com **aplicações de apoio** que tornam o uso mais interativo, visual e didático.  
 
-O módulo de navegadores realiza a coleta, análise e visualização de dados provenientes dos principais navegadores (Google Chrome, Microsoft Edge e Mozilla Firefox), utilizando bancos locais SQLite e arquivos de cache.
+**Escopo:**  
+- Execução de análises forenses em navegadores, arquivos, emails e redes.  
+- Visualização interativa de resultados.  
+- Geração de relatórios automáticos.  
+- Assistente interativo (Wizard) para guiar o usuário em tarefas complexas.  
 
-### Funcionalidades Implementadas
+**Público-alvo:**  
+- Estudantes e professores de cursos de Segurança da Informação e Perícia Digital.  
 
-#### 🧭 Histórico Completo de Navegação
-- Extração detalhada do histórico completo dos sites acessados.
-- Exportação dos dados em formato `.json`.
+---
 
-#### 📌 Últimos Acessos e Sites Mais Visitados
-- Lista dos últimos sites acessados.
-- Geração do top 5 dos domínios mais visitados.
-- Permite detectar padrões de comportamento digital do usuário.
+## 2. Arquitetura do Sistema
 
-#### 📥 Histórico de Downloads
-- Recuperação de arquivos baixados com nome, URL, caminho local e timestamp.
-- Suporte para análise de múltiplos perfis de navegador.
+O DevKit é composto por três camadas principais:  
 
-#### 🌐 Favicons e Capturas de Tela dos Sites
-- Download automático dos **favicons** dos domínios acessados.
-- Geração de **capturas de tela (screenshots)** dos sites visitados recentemente (via headless browser).
+1. **CLI Principal** – executa os módulos forenses.  
+2. **Aplicações de apoio** – Dashboard, Visualizadores de Resultados, Wizard.  
+3. **Módulos forenses** – organizados por categoria: Browsers, Data, Email, Network.
 
-#### ⚠️ Detecção de Padrões Incomuns
-- Geração de gráficos de **acessos por hora** e **por período do dia (madrugada, manhã, tarde, noite)**.
-- Detecção de:
-  - Acessos fora do horário habitual (ex.: madrugada).
-  - Acessos repetidos em curtos intervalos (potencial automação).
-- Gráficos salvos automaticamente em `.png`.
+---
 
-#### 🔐 Extração de Logins e Senhas (Chrome e Edge)
-- Extração de credenciais armazenadas localmente.
-- Visualização dos sites com dados de login salvos.
-> ⚠️ As senhas ainda não são descriptografadas por questões de segurança e autenticação local do sistema operacional.
+## 3. Módulos Forenses
 
-## 📁 Estrutura Esperada
+### 3.1 Browsers
+| Módulo | Descrição |
+|--------|-----------|
+| `browser_history.py` | Coleta histórico de navegação de diferentes browsers. |
+| `common_words.py` | Identifica palavras mais comuns em histórico de navegação e downloads. |
+| `downloads_history.py` | Lista arquivos baixados pelos usuários. |
+| `fav_screen.py` | Captura e organiza screenshots de sites favoritos ou acessados. |
+| `full_browser_history` | Consolida todo histórico de navegação em um único relatório. |
+| `logins_chrome`, `logins_edge` | Extração de credenciais armazenadas nos browsers. |
+| `unusual_patterns` | Identifica padrões suspeitos em histórico de navegação ou downloads. |
 
-Os dados extraídos são organizados e salvos na pasta `artefatos/`, separados por categoria (`historico`, `downloads`, `cookies`, etc.).
+### 3.2 Data
+| Módulo | Descrição |
+|--------|-----------|
+| `data_recovery` | Recuperação de arquivos apagados ou parcialmente corrompidos. |
 
-## 🧰 Tecnologias Utilizadas
+### 3.3 Email
+| Módulo | Descrição |
+|--------|-----------|
+| `email_parser` | Extrai e organiza informações de emails. |
+| `header_analysis` | Análise de cabeçalhos para identificar origem, roteamento e possíveis fraudes. |
 
-- `Python 3.10+`
-- `SQLite3`
-- `Pandas`
-- `Matplotlib`
-- `Requests`, `BeautifulSoup`
-- `Playwright` (para screenshots)
-- `os`, `json`, `datetime`, `cryptography` (em desenvolvimento)
+### 3.4 Network
+| Módulo | Descrição |
+|--------|-----------|
+| `fingerprinting` | Identifica sistemas, serviços e versões em uma rede. |
+| `network_map` | Gera mapa visual de hosts e conexões detectadas. |
+| `ping_sweep` | Verifica quais hosts estão ativos em uma faixa de IP. |
+| `port_scanner` | Identifica portas abertas e serviços ativos em hosts. |
 
-## 🚧 Em Desenvolvimento
+---
 
-- Decriptação segura de senhas (com suporte à autenticação do Windows).
-- Extração e análise de **cookies de sessão**.
-- Módulo de **linha do tempo forense**.
-- Módulo de **formulários autocompletos (autofill)**.
-- Módulo para análise forense de redes.
+## 4. Aplicações de Apoio
 
-## 📌 Objetivo da Iniciação Científica
+### 4.1 Dashboard
+**Objetivo:** Centralizar informações e permitir execução rápida de módulos.  
+**Funcionalidades:**  
+- Menu lateral com módulos do DevKit.  
+- Cards com resumo de análises recentes.  
+- Acesso direto a visualizadores e Wizard.  
+**Tecnologias sugeridas:** Streamlit (web), PyQt (desktop).  
 
-Desenvolver um ambiente modular que sirva de base para simulações de investigações forenses, com foco em automação e acessibilidade para pesquisadores e estudantes da área de Segurança e Computação Forense.
+### 4.2 Visualizadores de Resultados
+**Objetivo:** Transformar saídas da CLI em gráficos e tabelas interativas.  
+**Exemplos:**  
+- Mapas de rede interativos.  
+- Timeline de eventos e logs.  
+- Gráficos de arquivos analisados, tipos e padrões suspeitos.  
+**Integração:** Recebe dados da CLI em formato JSON ou CSV.  
 
-## 🤝 Contribuição
+### 4.3 Assistente Interativo (Wizard)
+**Objetivo:** Guiar o usuário passo a passo em tarefas complexas.  
+**Exemplo de fluxo:**  
+1. Seleção do tipo de análise (pendrive, rede, logs, etc.)  
+2. Configuração de opções (scan de malware, intervalo de IP, dispositivo alvo)  
+3. Execução automática dos módulos necessários  
+4. Geração de relatórios e acesso aos visualizadores  
 
-Contribuições, sugestões ou colaborações são bem-vindas! Entre em contato ou abra uma issue neste repositório.
+**Tecnologias sugeridas:**  
+- Terminal interativo (`questionary`, `PyInquirer`)  
+- Web/Desktop (mesmo framework do Dashboard)
 
-## 📜 Licença
+---
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
+## 5. Fluxo de Integração
 
-Este projeto está licenciado sob a [GPL-3.0 License](LICENSE-GPL).
+1. CLI executa módulos e gera resultados.  
+2. Dashboard centraliza execução e resume resultados.  
+3. Visualizadores transformam dados em gráficos/tabelas interativas.  
+4. Wizard guia o usuário e facilita a execução dos módulos.  
+
+---
+
+## 6. Planejamento e Ferramentas em Desenvolvimento
+
+| Aplicação / Módulo | Objetivo | Status / Possíveis Extensões |
+|-------------------|----------|-----------------------------|
+| **Dashboard** | Painel central para visualização e execução de módulos | Em desenvolvimento. Futuras extensões: filtros avançados, alertas em tempo real, integração direta com relatórios. |
+| **Visualizadores de Resultados** | Transformar dados da CLI em gráficos, mapas e tabelas interativas | Em desenvolvimento. Futuras extensões: timeline interativa, heatmaps de rede, gráficos de comportamento de usuários. |
+| **Assistente Interativo (Wizard)** | Guiar o usuário em análises passo a passo | Em desenvolvimento. Futuras extensões: templates de análise rápida, integração automática com módulos de email e data, relatórios PDF/HTML automáticos. |
+| **Possíveis novos módulos** | Expansão da CLI | - Análise de logs de sistemas (Windows/Linux) <br> - Recuperação de dados de dispositivos móveis <br> - Análise de mídias (imagens, vídeos) <br> - Detecção de malware e scripts maliciosos em arquivos <br> - Integração com APIs de threat intelligence |
+| **Ferramentas auxiliares** | Suporte a módulos existentes e novos | - Exportação avançada de relatórios (PDF, HTML, CSV) <br> - Integração com dashboards interativos <br> - Geradores de gráficos customizáveis <br> - Notificações em tempo real de eventos suspeitos |
+
+**Observações:**  
+- O conjunto de aplicações complementares mantém a CLI como núcleo, mas oferece interfaces gráficas e interativas que facilitam o aprendizado e a interpretação dos resultados.  
+- A previsão de novos módulos e ferramentas auxiliares permite expansão futura do DevKit, tornando-o mais completo para cenários educacionais e de teste forense.
+
+---
+
+## 7. Considerações Finais
+
+O DevKit Forense combina **educação e prática**, permitindo que usuários explorem análise forense digital de forma segura, didática e interativa.  
+As aplicações de apoio aumentam a acessibilidade e o engajamento, tornando o estudo da perícia digital mais visual e intuitivo.  
+O planejamento de novos módulos e ferramentas garante evolução contínua da plataforma, mantendo-a atualizada e relevante para atividades acadêmicas e laboratoriais.

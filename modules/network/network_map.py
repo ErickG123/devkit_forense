@@ -31,11 +31,18 @@ def build_network_map(network):
 
         network_results.append(host_info)
 
-        print(f"IP: {ip} | MAC: {mac} ({vendor}) | Hostname: {hostname} | OS: {os_info}")
+        os_str = f"{os_info['os']} ({os_info['host_type']})"
+        print(f"IP: {ip} | MAC: {mac} ({vendor}) | Hostname: {hostname} | OS: {os_str}")
+        if os_info['services']:
+            print(f"  Serviços detectados: {', '.join(os_info['services'])}")
+        if os_info['alerts']:
+            print(f"  ⚠️ Alertas: {', '.join(os_info['alerts'])}")
+
         if ports:
             for p in ports:
                 alert_msg = f" | ALERT: {p.get('alert')}" if p.get("alert") else ""
-                print(f"  - {p['port']} ({p['protocol']}) aberta | {p['banner'][:60]}{alert_msg}")
+                version_msg = f" | Version: {p.get('version')}" if p.get("version") else ""
+                print(f"  - {p['port']} ({p['protocol']}) aberta | {p['banner'][:60]}{version_msg}{alert_msg}")
         else:
             print("  Nenhuma porta aberta encontrada.")
 
@@ -64,7 +71,7 @@ def save_network_map(results, prefix="network_map"):
         json.dump(results, f, indent=4, ensure_ascii=False)
 
     with open(csv_file, "w", newline="", encoding="utf-8") as f:
-        headers = ["IP", "MAC", "Vendor", "Hostname", "OS"] + service_columns + ["Portas"]
+        headers = ["IP", "MAC", "Vendor", "Hostname", "OS", "Host_Type", "Alertas"] + service_columns + ["Portas"]
         writer = csv.DictWriter(f, fieldnames=headers)
         writer.writeheader()
 
@@ -74,13 +81,15 @@ def save_network_map(results, prefix="network_map"):
                 svc = port_service_map.get(p["port"])
                 if svc:
                     service_data[svc] = "Sim"
-            portas_str = ", ".join([f"{p['port']}({p['protocol']}): {p['banner']}" for p in host["ports"]])
+            portas_str = ", ".join([f"{p['port']}({p['protocol']}): {p['banner']}{' | Version: '+p['version'] if p.get('version') else ''}" for p in host["ports"]])
             row = {
                 "IP": host["ip"],
                 "MAC": host["mac"],
                 "Vendor": host["vendor"],
                 "Hostname": host["hostname"],
-                "OS": host["os"],
+                "OS": host["os"]["os"],
+                "Host_Type": host["os"]["host_type"],
+                "Alertas": ", ".join(host["os"]["alerts"]) if host["os"]["alerts"] else "",
                 **service_data,
                 "Portas": portas_str
             }

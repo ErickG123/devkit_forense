@@ -1,5 +1,6 @@
 import subprocess
 import platform
+import re
 
 SERVER_PORTS = [21, 22, 23, 25, 53, 80, 443, 139, 445, 3306, 3389]
 SERVER_TYPE_MAP = {
@@ -16,10 +17,26 @@ SERVER_TYPE_MAP = {
     3389: "RDP"
 }
 
+VERSION_ALERTS = {
+    "ftp": ["vsftpd 2.3.4"],
+    "ssh": ["OpenSSH 5.3"],
+    "smb": ["Samba 3.0"],
+    "mysql": ["MySQL 5.5"]
+}
+
+def extract_service_version(banner):
+    if not banner:
+        return None
+    match = re.search(r"([a-zA-Z]+)[ /]?([0-9]+\.[0-9]+(?:\.[0-9]+)?)", banner)
+    if match:
+        return f"{match.group(1)} {match.group(2)}"
+    return banner.strip() if banner else None
+
 def detect_os(ip, ports=None, mac_vendor=None):
     os_estimate = "Desconhecido"
     host_type = "Desconhecido"
-    server_types = []
+    services = []
+    alerts = []
 
     try:
         ping_cmd = ["ping", "-c", "1", "-W", "1", ip] if platform.system() != "Windows" else ["ping", "-n", "1", "-w", "1000", ip]
@@ -38,10 +55,23 @@ def detect_os(ip, ports=None, mac_vendor=None):
     if ports:
         for p in ports:
             banner = p.get("banner", "").lower()
+            service_name = SERVER_TYPE_MAP.get(p["port"], f"Port {p['port']}")
+            services.append(service_name)
+
             if any(x in banner for x in ["microsoft", "windows"]):
                 os_estimate = "Windows"
             elif any(x in banner for x in ["linux", "ubuntu", "debian", "centos", "red hat"]):
                 os_estimate = "Linux/Unix"
+
+            for key, vulnerable_versions in VERSION_ALERTS.items():
+                if key in banner:
+                    for v in vulnerable_versions:
+                        if v.lower() in banner:
+                            alerts.append(f"{service_name} vulnerável ({v})")
+
+            version = extract_service_version(p.get("banner"))
+            if version:
+                p["version"] = version
 
     if mac_vendor:
         vendor = mac_vendor.lower()
@@ -54,13 +84,12 @@ def detect_os(ip, ports=None, mac_vendor=None):
         server_ports = [p for p in SERVER_PORTS if p in port_numbers]
         if server_ports:
             host_type = "Servidor"
-            for port in server_ports:
-                server_types.append(SERVER_TYPE_MAP.get(port))
         else:
             host_type = "Desktop"
 
-    if server_types:
-        server_info = ", ".join(server_types)
-        return f"{os_estimate} ({host_type}: {server_info})"
-    else:
-        return f"{os_estimate} ({host_type})"
+    return {
+        "os": os_estimate,
+        "host_type": host_type,
+        "services": services,
+        "alerts": alerts
+    }

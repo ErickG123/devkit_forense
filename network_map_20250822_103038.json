@@ -1,0 +1,1901 @@
+[
+    {
+        "ip": "192.168.0.1",
+        "mac": "50:d4:f7:19:6d:99",
+        "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+        "hostname": "ARCHER_C5",
+        "os": "Linux/Unix (Servidor: FTP, SSH, Telnet, DNS, Web HTTP, SMB, SMB)",
+        "ports": [
+            {
+                "port": 21,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "FTP"
+            },
+            {
+                "port": 22,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SSH"
+            },
+            {
+                "port": 23,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "Telnet"
+            },
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "DNS"
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 130\r\nSet-Cookie: JSESSIONID=deleted; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Path=/; HttpOnly\r\nConnection: close\r\n\r\n<html><head><title>500 Internal Server Error</title></head><body><center><h1>500 Internal Server Error</h1></center></body></html>",
+                "alert": "HTTP"
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.3",
+        "mac": "18:0d:2c:34:43:ee",
+        "vendor": "Intelbras",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS, Web HTTP)",
+        "ports": [
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "HTTP"
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.7",
+        "mac": "18:0d:2c:34:43:f0",
+        "vendor": "Intelbras",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS, Web HTTP)",
+        "ports": [
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "HTTP"
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.23",
+        "mac": "b8:ac:6f:fc:ec:d9",
+        "vendor": "Dell Inc.",
+        "hostname": "WIN-A4DE9AFN6A4",
+        "os": "Windows (Servidor: FTP, DNS, Web HTTP, SMB, SMB, MySQL)",
+        "ports": [
+            {
+                "port": 21,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "FTP"
+            },
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 3306,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "MySQL"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.1 200 OK\r\nCache-Control: private\r\nContent-Length: 5324\r\nContent-Type: text/html; charset=utf-8\r\nServer: Microsoft-IIS/8.0\r\nX-AspNet-Version: 4.0.30319\r\nX-Powered-By: ASP.NET\r\nDate: Fri, 22 Aug 2025 13:29:01 GMT\r\nConnection: close",
+                "alert": "HTTP"
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.100",
+        "mac": "50:d4:f7:19:62:fc",
+        "vendor": "TP-LINK TECHNOLOGIES CO.,LTD.",
+        "hostname": "N/A",
+        "os": "Desconhecido (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.102",
+        "mac": "30:e1:f1:2c:de:d2",
+        "vendor": "Intelbras",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS, Web HTTP)",
+        "ports": [
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "HTTP"
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.103",
+        "mac": "00:31:92:82:7c:08",
+        "vendor": "TP-Link Systems Inc",
+        "hostname": "N/A",
+        "os": "Desconhecido (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.104",
+        "mac": "c8:9c:dc:cf:3b:a7",
+        "vendor": "Elitegroup Computer Systems Co.,Ltd.",
+        "hostname": "tati",
+        "os": "Windows (Servidor: DNS, SMB, SMB)",
+        "ports": [
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.107",
+        "mac": "0a:e0:af:ae:00:11",
+        "vendor": "Desconhecido",
+        "hostname": "Erick",
+        "os": "Windows (Servidor: DNS, Web HTTP, Web HTTPS, SMB, SMB, MySQL)",
+        "ports": [
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 443,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.1 400 Bad Request\r\nDate: Fri, 22 Aug 2025 13:29:28 GMT\r\nServer: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12\r\nContent-Length: 468\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\">\n<html><head>\n<title>400 Bad Request</title>\n</head><body>\n<h1>Bad Request</h1>\n<p>Your browser sent a request that this server could not understand.<br />\nReason: You're speaking plain HTTP to an SSL-enabled server port.<br />\n Instead use the HTTPS scheme to access this URL, please.<br />\n</p>\n<hr>\n<address>Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12 Server at www.example.com Port 443</address>\n</body></html>",
+                "alert": "HTTPS"
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.1 302 Found\r\nDate: Fri, 22 Aug 2025 13:29:28 GMT\r\nServer: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12\r\nX-Powered-By: PHP/8.2.12\r\nLocation: http:///dashboard/\r\nConnection: close\r\nContent-Type: text/html; charset=UTF-8",
+                "alert": "HTTP"
+            },
+            {
+                "port": 3306,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "MySQL"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.108",
+        "mac": "0a:e0:af:c1:0e:73",
+        "vendor": "Desconhecido",
+        "hostname": "SUPORTE",
+        "os": "Windows (Servidor: DNS, SMB, SMB)",
+        "ports": [
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.109",
+        "mac": "50:e5:49:fa:60:45",
+        "vendor": "GIGA-BYTE TECHNOLOGY CO.,LTD.",
+        "hostname": "BALCAO",
+        "os": "Windows (Servidor: DNS, SMB, SMB)",
+        "ports": [
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.110",
+        "mac": "50:55:81:74:86:85",
+        "vendor": "Desconhecido",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.114",
+        "mac": "a4:ba:db:05:e3:6a",
+        "vendor": "Dell Inc.",
+        "hostname": "cabral",
+        "os": "Windows (Servidor: DNS, SMB, SMB)",
+        "ports": [
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.120",
+        "mac": "b8:ac:6f:fc:ec:d8",
+        "vendor": "Dell Inc.",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.127",
+        "mac": "58:10:8c:83:0b:c6",
+        "vendor": "Intelbras",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS, Web HTTP)",
+        "ports": [
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.0 200 OK",
+                "alert": "HTTP"
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.137",
+        "mac": "00:e0:4e:d0:84:a9",
+        "vendor": "SANYO DENKI CO., LTD.",
+        "hostname": "xande",
+        "os": "Windows (Servidor: DNS, SMB, SMB, RDP)",
+        "ports": [
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 3389,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "RDP"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.154",
+        "mac": "18:0d:2c:00:ae:91",
+        "vendor": "Intelbras",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS, Web HTTP)",
+        "ports": [
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.0 200 OK",
+                "alert": "HTTP"
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.128",
+        "mac": "60:f6:77:74:c2:00",
+        "vendor": "Intel Corporate",
+        "hostname": "DAVID",
+        "os": "Windows (Servidor: DNS, Web HTTP, SMB, SMB, MySQL)",
+        "ports": [
+            {
+                "port": 445,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "SMB"
+            },
+            {
+                "port": 3306,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": "MySQL"
+            },
+            {
+                "port": 135,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 139,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "sem banner",
+                "alert": null
+            },
+            {
+                "port": 80,
+                "protocol": "TCP",
+                "status": "open",
+                "banner": "HTTP/1.1 302 Found\r\nDate: Fri, 22 Aug 2025 13:30:12 GMT\r\nServer: Apache/2.4.46 (Win64) PHP/7.4.12\r\nX-Powered-By: PHP/7.4.12\r\nlocation: foodprint_novo/\r\nConnection: close\r\nContent-Type: text/html; charset=UTF-8",
+                "alert": "HTTP"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.181",
+        "mac": "3e:0c:a3:64:27:33",
+        "vendor": "Desconhecido",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.124",
+        "mac": "da:3f:c6:54:f6:25",
+        "vendor": "Desconhecido",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.112",
+        "mac": "d6:52:98:ce:25:3e",
+        "vendor": "Desconhecido",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    },
+    {
+        "ip": "192.168.0.161",
+        "mac": "28:ed:e0:7f:d2:e3",
+        "vendor": "AMPAK Technology, Inc.",
+        "hostname": "N/A",
+        "os": "Linux/Unix (Servidor: DNS)",
+        "ports": [
+            {
+                "port": 53,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": "DNS"
+            },
+            {
+                "port": 67,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 69,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 161,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 123,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 68,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 162,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 514,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            },
+            {
+                "port": 500,
+                "protocol": "UDP",
+                "status": "open|filtered",
+                "banner": "sem resposta",
+                "alert": null
+            }
+        ]
+    }
+]

@@ -3,7 +3,7 @@ import socket
 import requests
 
 def get_mac(ip):
-    pkt = Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst=ip)
+    pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
     ans, _ = srp(pkt, timeout=2, verbose=0)
     for _, rcv in ans:
         return rcv[Ether].src

@@ -1,0 +1,2 @@
+Rodar a API:
+uvicorn api.main:app --reload

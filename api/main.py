@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import List
-import subprocess, os
 import sys
 
 from core.db.db import SessionLocal, engine, Base
@@ -29,7 +28,6 @@ def create_module(module: schemas.ModuleCreate, db: Session = Depends(get_db)):
     db.refresh(db_module)
     return db_module
 
-
 @app.get("/modules/", response_model=List[schemas.Module])
 def get_modules(db: Session = Depends(get_db)):
     return db.query(orm.Module).all()
@@ -46,7 +44,6 @@ def create_functionality(functionality: schemas.FunctionalityCreate, db: Session
     db.refresh(db_func)
     return db_func
 
-
 @app.get("/functionalities/", response_model=List[schemas.Functionality])
 def get_functionalities(db: Session = Depends(get_db)):
     return db.query(orm.Functionality).all()
@@ -62,11 +59,9 @@ def create_result(result: schemas.ResultCreate, db: Session = Depends(get_db)):
     db.refresh(db_result)
     return db_result
 
-
 @app.get("/results/", response_model=List[schemas.Result])
 def get_results(db: Session = Depends(get_db)):
     return db.query(orm.Result).all()
-
 
 @app.get("/functionalities/{func_id}/results", response_model=List[schemas.Result])
 def get_results_by_functionality(func_id: str, db: Session = Depends(get_db)):
@@ -80,11 +75,9 @@ def create_report(report: schemas.ReportCreate, db: Session = Depends(get_db)):
     db.refresh(db_report)
     return db_report
 
-
 @app.get("/reports/", response_model=List[schemas.Report])
 def get_reports(db: Session = Depends(get_db)):
     return db.query(orm.Report).all()
-
 
 @app.get("/results/{result_id}/reports", response_model=List[schemas.Report])
 def get_reports_by_result(result_id: str, db: Session = Depends(get_db)):

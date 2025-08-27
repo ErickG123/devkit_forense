@@ -6,6 +6,7 @@ import json
 import csv
 from datetime import datetime
 import os
+import argparse
 
 def build_network_map(network):
     hosts = ping_sweep(network)
@@ -56,6 +57,18 @@ def save_network_map(results, output_dir, prefix="network_map"):
     json_file = os.path.join(output_dir, f"{prefix}_{timestamp}.json")
     csv_file = os.path.join(output_dir, f"{prefix}_{timestamp}_advanced.csv")
 
+    if not results:
+        print("⚠️ Nenhum dado para salvar.")
+        return None, None
+
+    try:
+        with open(json_file, "w", encoding="utf-8") as f:
+            json.dump(results, f, indent=4, ensure_ascii=False)
+        print(f"✅ JSON salvo: {json_file}")
+    except Exception as e:
+        print(f"Erro ao salvar JSON: {e}")
+        json_file = None
+
     service_columns = ["HTTP", "HTTPS", "FTP", "SSH", "SMB", "MySQL", "RDP", "DNS", "Telnet"]
     port_service_map = {
         21: "FTP",
@@ -70,39 +83,59 @@ def save_network_map(results, output_dir, prefix="network_map"):
         3389: "RDP"
     }
 
-    with open(json_file, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4, ensure_ascii=False)
+    try:
+        with open(csv_file, "w", newline="", encoding="utf-8") as f:
+            headers = ["IP", "MAC", "Vendor", "Hostname", "OS", "Host_Type", "Alertas"] + service_columns + ["Portas"]
+            writer = csv.DictWriter(f, fieldnames=headers)
+            writer.writeheader()
 
-    with open(csv_file, "w", newline="", encoding="utf-8") as f:
-        headers = ["IP", "MAC", "Vendor", "Hostname", "OS", "Host_Type", "Alertas"] + service_columns + ["Portas"]
-        writer = csv.DictWriter(f, fieldnames=headers)
-        writer.writeheader()
+            for host in results:
+                service_data = {svc: "" for svc in service_columns}
+                for p in host.get("ports", []):
+                    svc = port_service_map.get(p["port"])
+                    if svc:
+                        service_data[svc] = "Sim"
 
-        for host in results:
-            service_data = {svc: "" for svc in service_columns}
-            for p in host["ports"]:
-                svc = port_service_map.get(p["port"])
-                if svc:
-                    service_data[svc] = "Sim"
-            portas_str = ", ".join([f"{p['port']}({p['protocol']}): {p['banner']}{' | Version: '+p['version'] if p.get('version') else ''}" for p in host["ports"]])
-            row = {
-                "IP": host["ip"],
-                "MAC": host["mac"],
-                "Vendor": host["vendor"],
-                "Hostname": host["hostname"],
-                "OS": host["os"]["os"],
-                "Host_Type": host["os"]["host_type"],
-                "Alertas": ", ".join(host["os"]["alerts"]) if host["os"]["alerts"] else "",
-                **service_data,
-                "Portas": portas_str
-            }
-            writer.writerow(row)
+                portas_str = ", ".join([
+                    f"{p['port']}({p['protocol']}): {p['banner']}{' | Version: '+p['version'] if p.get('version') else ''}"
+                    for p in host.get("ports", [])
+                ])
 
-    print(f"\n✅ Resultados salvos em JSON: {json_file} e CSV avançado: {csv_file}")
+                row = {
+                    "IP": host.get("ip", ""),
+                    "MAC": host.get("mac", ""),
+                    "Vendor": host.get("vendor", ""),
+                    "Hostname": host.get("hostname", ""),
+                    "OS": host.get("os", {}).get("os", ""),
+                    "Host_Type": host.get("os", {}).get("host_type", ""),
+                    "Alertas": ", ".join(host.get("os", {}).get("alerts", [])),
+                    **service_data,
+                    "Portas": portas_str
+                }
+                writer.writerow(row)
+        print(f"✅ CSV salvo: {csv_file}")
+    except Exception as e:
+        print(f"Erro ao salvar CSV: {e}")
+        csv_file = None
+
+    return json_file, csv_file
 
 if __name__ == "__main__":
-    rede = input("Digite a rede (ex: 192.168.0.0/24): ")
+    parser = argparse.ArgumentParser(description="Build network map")
+    parser.add_argument("--network", type=str, help="Rede a ser escaneada (ex: 192.168.0.0/24)")
+    parser.add_argument("--output-dir", type=str, help="Diretório para salvar os resultados", default="../../cli_output")
+
+    args = parser.parse_args()
+
+    if not args.network:
+        rede = input("Digite a rede (ex: 192.168.0.0/24): ")
+    else:
+        rede = args.network
+
     BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-    OUTPUT_DIR = os.path.join(BASE_DIR, "cli_output")
+    OUTPUT_DIR = args.output_dir
+    if not os.path.isabs(OUTPUT_DIR):
+        OUTPUT_DIR = os.path.join(BASE_DIR, OUTPUT_DIR)
+
     network_results = build_network_map(rede)
     save_network_map(network_results, output_dir=OUTPUT_DIR)

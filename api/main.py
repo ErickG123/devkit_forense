@@ -84,7 +84,7 @@ def get_reports_by_result(result_id: str, db: Session = Depends(get_db)):
     return db.query(orm.Report).filter(orm.Report.result_id == result_id).all()
 
 @app.post("/functionalities/{func_id}/run")
-def run_functionality(func_id: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def run_functionality(func_id: str, network: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     func = db.query(orm.Functionality).filter(orm.Functionality.id == func_id).first()
     if not func:
         raise HTTPException(status_code=404, detail="Funcionalidade não encontrada")
@@ -102,17 +102,21 @@ def run_functionality(func_id: str, background_tasks: BackgroundTasks, db: Sessi
             CLI_BASE_DIR = Path(__file__).parent.parent
 
             python_module_path = f"core.{module_name}.{func_name}"
-
             output_dir = CLI_BASE_DIR / "cli_output"
             os.makedirs(output_dir, exist_ok=True)
 
             subprocess.run(
-                [CLI_PYTHON, "-m", python_module_path, "--output-dir", output_dir], 
-                check=True, 
-                cwd=CLI_BASE_DIR)
+                [
+                    CLI_PYTHON,
+                    "-m", python_module_path,
+                    "--network", network,
+                    "--output-dir", str(output_dir)
+                ],
+                check=True,
+                cwd=CLI_BASE_DIR
+            )
 
             output_file = output_dir / f"{func_name}.json"
-
             if output_file.exists():
                 with open(output_file, "r", encoding="utf-8") as f:
                     data = f.read()

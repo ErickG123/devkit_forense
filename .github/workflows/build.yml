@@ -1,13 +1,13 @@
-name: Build Forensic CLI
+name: Build & Release Forensic CLI
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
+
+permissions:
+  contents: write  # necessário para criar tags e releases em repositório privado
 
 jobs:
   build-windows:
@@ -15,7 +15,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # necessário para tags
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -27,7 +29,8 @@ jobs:
           python -m venv venv
           .\venv\Scripts\activate
           pip install --upgrade pip
-          pip install pyinstaller -r requirements.txt
+          pip install pyinstaller
+          pip install -r requirements.txt
 
       - name: Build executable
         run: |
@@ -39,3 +42,71 @@ jobs:
         with:
           name: forensic-cli-exe
           path: dist/forensic-cli.exe
+
+  release:
+    needs: build-windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag and increment patch
+        id: get_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          
+          VERSION=${LATEST_TAG#v}
+          IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
+          
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+          
+          NEW_PATCH=$((PATCH + 1))
+          NEW_TAG="v$MAJOR.$MINOR.$NEW_PATCH"
+          
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag (if not exists)
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          if git rev-parse "refs/tags/${{ steps.get_tag.outputs.new_tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.get_tag.outputs.new_tag }} already exists. Skipping creation."
+          else
+            git tag ${{ steps.get_tag.outputs.new_tag }}
+            git push origin ${{ steps.get_tag.outputs.new_tag }}
+          fi
+
+      - name: Download built artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: forensic-cli-exe
+          path: ./dist
+
+      - name: Check if release exists
+        id: check_release
+        run: |
+          if gh release view ${{ steps.get_tag.outputs.new_tag }} >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release if not exists
+        if: steps.check_release.outputs.exists == 'false'
+        run: |
+          gh release create ${{ steps.get_tag.outputs.new_tag }} ./dist/forensic-cli.exe \
+            --title "Forensic CLI ${{ steps.get_tag.outputs.new_tag }}" \
+            --notes "Automated release from main branch merge. Commit: ${{ github.sha }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

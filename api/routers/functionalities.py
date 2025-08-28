@@ -1,18 +1,19 @@
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from sqlalchemy.orm import Session
+from pathlib import Path
+from datetime import datetime
+import json
+import os
+
 import core.models.orm as orm
 import core.models.schemas as schemas
 from core.db.db import SessionLocal
 from api.utils.db import get_db
-
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
-from typing import List
-import sys
-
-CLI_PYTHON = sys.executable
+from core.registry import FUNCTIONALITIES
 
 router = APIRouter(prefix="/functionalities", tags=["Functionalities"])
 
-@router.post("/functionalities/", response_model=schemas.Functionality)
+@router.post("/", response_model=schemas.Functionality)
 def create_functionality(functionality: schemas.FunctionalityCreate, db: Session = Depends(get_db)):
     db_func = orm.Functionality(
         name=functionality.name,
@@ -24,64 +25,73 @@ def create_functionality(functionality: schemas.FunctionalityCreate, db: Session
     db.refresh(db_func)
     return db_func
 
-@router.get("/functionalities/", response_model=List[schemas.Functionality])
+@router.get("/", response_model=list[schemas.Functionality])
 def get_functionalities(db: Session = Depends(get_db)):
     return db.query(orm.Functionality).all()
 
-@router.get("/functionalities/{func_id}/results", response_model=List[schemas.Result])
+@router.get("/{func_id}/results", response_model=list[schemas.Result])
 def get_results_by_functionality(func_id: str, db: Session = Depends(get_db)):
-    return db.query(orm.Result).filter(orm.Result.functionality_id == func_id).all()
+    executions = db.query(orm.Execution).filter(orm.Execution.functionality_id == func_id).all()
+    results = []
+    for exe in executions:
+        if exe.result:
+            results.append(exe.result)
+    return results
 
-@router.post("/functionalities/{func_id}/run")
-def run_functionality(func_id: str, network: str, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
-    func = db.query(orm.Functionality).filter(orm.Functionality.id == func_id).first()
-    if not func:
+
+@router.post("/{func_id}/run")
+def run_functionality(
+    func_id: str,
+    network: str = None,
+    background_tasks: BackgroundTasks = None,
+    usuario: str = "Usuário Anônimo",
+    db: Session = Depends(get_db)
+):
+    func_obj = db.query(orm.Functionality).filter(orm.Functionality.id == func_id).first()
+    if not func_obj:
         raise HTTPException(status_code=404, detail="Funcionalidade não encontrada")
 
-    module_name = func.module.name
-    func_name = func.name
-    func_id_db = func.id
+    func_name = func_obj.name
+    if func_name not in FUNCTIONALITIES:
+        raise HTTPException(status_code=400, detail=f"Funcionalidade '{func_name}' não registrada")
 
-    def execute_cli():
+    def execute_core():
         try:
-            import subprocess
-            import os
-            from pathlib import Path
-
-            CLI_BASE_DIR = Path(__file__).parent.parent
-
-            python_module_path = f"core.{module_name}.{func_name}"
-            output_dir = CLI_BASE_DIR / "cli_output"
+            output_dir = Path(__file__).parent.parent / "cli_output"
             os.makedirs(output_dir, exist_ok=True)
 
-            subprocess.run(
-                [
-                    CLI_PYTHON,
-                    "-m", python_module_path,
-                    "--network", network,
-                    "--output-dir", str(output_dir)
-                ],
-                check=True,
-                cwd=CLI_BASE_DIR
+            func = FUNCTIONALITIES[func_name]
+
+            if func_name == "network_map":
+                result_data = func(network, str(output_dir))
+            else:
+                result_data = func(usuario=usuario, output_dir=str(output_dir))
+
+            db_session = SessionLocal()
+            execution = orm.Execution(
+                functionality_id=func_obj.id,
+                network=network or "N/A",
+                status="started",
+                started_at=datetime.utcnow()
             )
+            db_session.add(execution)
+            db_session.commit()
+            db_session.refresh(execution)
 
-            output_file = output_dir / f"{func_name}.json"
-            if output_file.exists():
-                with open(output_file, "r", encoding="utf-8") as f:
-                    data = f.read()
+            result = orm.Result(
+                execution_id=execution.id,
+                data=json.dumps(result_data, ensure_ascii=False),
+                created_at=datetime.utcnow()
+            )
+            db_session.add(result)
+            db_session.commit()
+            db_session.refresh(result)
+            db_session.close()
 
-                db_session = SessionLocal()
-                result = orm.Result(functionality_id=func_id_db, data=data)
-                db_session.add(result)
-                db_session.commit()
-                db_session.refresh(result)
-                db_session.close()
+            print(f"✅ {func_name} executado com sucesso!")
 
-        except subprocess.CalledProcessError as e:
-            print(f"Erro ao executar CLI: {e}")
         except Exception as e:
-            print(f"Erro ao processar resultados: {e}")
+            print(f"❌ Erro ao executar {func_name}: {e}")
 
-    background_tasks.add_task(execute_cli)
-
+    background_tasks.add_task(execute_core)
     return {"status": "execução iniciada em background", "funcionalidade": func_name}

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
+from datetime import datetime
 
 class ReportBase(BaseModel):
     file_path: str
@@ -18,11 +19,30 @@ class ResultBase(BaseModel):
     data: str
 
 class ResultCreate(ResultBase):
-    functionality_id: str
+    execution_id: str
 
 class Result(ResultBase):
     id: str
-    created_at: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class ExecutionBase(BaseModel):
+    network: str
+    cli_version: Optional[str] = None
+
+class ExecutionCreateSchema(ExecutionBase):
+    func_id: str
+    data: Optional[Any] = None
+
+class ExecutionSchema(ExecutionBase):
+    id: str
+    functionality_id: str
+    status: str
+    started_at: datetime
+    finished_at: Optional[datetime]
+    result: Optional[Result] = None
 
     class Config:
         orm_mode = True
@@ -36,7 +56,7 @@ class FunctionalityCreate(FunctionalityBase):
 
 class Functionality(FunctionalityBase):
     id: str
-    results: List[Result] = []
+    executions: List[ExecutionSchema] = []
 
     class Config:
         orm_mode = True

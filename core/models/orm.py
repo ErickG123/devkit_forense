@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Text, ForeignKey, DateTime
+from sqlalchemy import Column, String, Text, ForeignKey, DateTime, Integer
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -6,6 +6,7 @@ from core.db.db import Base
 
 class Module(Base):
     __tablename__ = "modules"
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, unique=True, index=True)
     description = Column(Text)
@@ -13,24 +14,35 @@ class Module(Base):
 
 class Functionality(Base):
     __tablename__ = "functionalities"
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     module_id = Column(String, ForeignKey("modules.id"))
     name = Column(String)
     description = Column(Text)
+
     module = relationship("Module", back_populates="functionalities")
-    results = relationship("Result", back_populates="functionality")
+    executions = relationship("Execution", back_populates="functionality")
+
+class Execution(Base):
+    __tablename__ = "executions"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    functionality_id = Column(String, ForeignKey("functionalities.id"))
+    network = Column(String, nullable=False)
+    status = Column(String, default="started")
+    started_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime, nullable=True)
+    cli_version = Column(String, nullable=True)
+
+    functionality = relationship("Functionality", back_populates="executions")
+    result = relationship("Result", back_populates="execution", uselist=False)
 
 class Result(Base):
     __tablename__ = "results"
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    functionality_id = Column(String, ForeignKey("functionalities.id"))
+    execution_id = Column(String, ForeignKey("executions.id"))
     data = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
-    functionality = relationship("Functionality", back_populates="results")
 
-class Report(Base):
-    __tablename__ = "reports"
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    result_id = Column(String, ForeignKey("results.id"))
-    file_path = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    execution = relationship("Execution", back_populates="result")

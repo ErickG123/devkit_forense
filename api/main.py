@@ -1,5 +1,5 @@
 from core.db.db import engine, Base
-from api.routers import modules, functionalities, results, reports
+from api.routers import modules, functionalities, results, reports, executions
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,3 +24,4 @@ app.include_router(modules.router)
 app.include_router(functionalities.router)
 app.include_router(results.router)
 app.include_router(reports.router)
+app.include_router(executions.router)

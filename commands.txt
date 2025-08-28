@@ -1,2 +1,8 @@
 Rodar a API:
-uvicorn api.main:app --reload
+uvicorn src.api.main:app --reload
+
+Criando o executável:
+pip install pyinstaller
+
+Build:
+pyinstaller --onefile --name forensic-cli --console --add-data "src/core;core" --add-data "src/api;api" src/cli/cli.py

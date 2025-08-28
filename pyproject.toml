@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "forensic-cli"
+version = "1.0.0"
+description = "DevKit Forense - CLI para análise de navegadores e rede"
+authors = [
+    {name = "Erick Gabriel dos Santos Alves", email = "erickgabrielalves0@gmail.com"}
+]
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["cli*", "core*", "api*"]
+
+[project.scripts]
+forensic-cli = "cli.cli:main"

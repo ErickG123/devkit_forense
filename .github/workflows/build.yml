@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # necessário para criar tags e releases em repositório privado
+  contents: write
 
 jobs:
   build-windows:
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # necessário para tags
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4

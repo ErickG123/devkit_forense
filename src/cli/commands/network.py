@@ -63,16 +63,16 @@ def fingerprinting(
 
 @network_app.command("traceroute")
 def traceroute(
-    ip: str = typer.Option(..., help="IP ou hostname do destino")
+    domain: str = typer.Option(..., help="Informe um domínio")
 ):
-    typer.echo(f"[+] Iniciando traceroute para {ip}...")
+    typer.echo(f"[+] Iniciando traceroute para {domain}...")
 
-    hops = traceroute_host(ip)
+    hops = traceroute_host(domain)
 
     with typer.progressbar(hops, label="Traceroute") as progress:
         for h in hops:
             rtt = h["rtt"]
-            hop_text = Text(f"Hop {h['hop']}: {h['ip']} - RTT: ")
+            hop_text = Text(f"Hop {h['hop']}: {h['domain']} - RTT: ")
 
             if rtt is None:
                 hop_text.append("inacessível", style="grey50")
@@ -95,9 +95,9 @@ def arp(
 
 @network_app.command("dnscan")
 def dns(
-    ip: str = typer.Option(..., help="IP ou hostname do destino"),
+    domain: str = typer.Option(..., help="Informe o domínio que será analisado"),
 ):
-    result = dns_recon([ip])
+    result = dns_recon([domain])
     print(result)
 
 @network_app.command("ipinfo")

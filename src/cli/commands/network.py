@@ -1,10 +1,12 @@
 import typer
 from rich import print
+from rich.text import Text
 
 from core.network.network_map import run as run_network_map
 from core.network.port_scanner import scan_host
 from core.network.ping_sweep import parse_network, ping_host
 from core.network.fingerprinting import detect_os
+from core.network.traceroute import traceroute_host
 
 network_app = typer.Typer()
 
@@ -53,3 +55,28 @@ def fingerprinting(
     result = detect_os(ip, ports=ports)
 
     print(result)
+
+@network_app.command("traceroute")
+def traceroute(
+    ip: str = typer.Option(..., help="IP ou hostname do destino")
+):
+    typer.echo(f"[+] Iniciando traceroute para {ip}...")
+
+    hops = traceroute_host(ip)
+
+    with typer.progressbar(hops, label="Traceroute") as progress:
+        for h in hops:
+            rtt = h["rtt"]
+            hop_text = Text(f"Hop {h['hop']}: {h['ip']} - RTT: ")
+
+            if rtt is None:
+                hop_text.append("inacessível", style="grey50")
+            elif rtt < 10:
+                hop_text.append(f"{rtt} ms", style="green")
+            elif rtt < 50:
+                hop_text.append(f"{rtt} ms", style="yellow")
+            else:
+                hop_text.append(f"{rtt} ms", style="red")
+
+            print(hop_text)
+            progress.update(1)

@@ -2,6 +2,7 @@ from core.network.ping_sweep import ping_sweep
 from core.network.port_scanner import scan_host
 from core.network.utils import get_mac, get_vendor, get_hostname
 from core.network.fingerprinting import detect_os
+from core.network.traceroute import traceroute_host
 
 import json
 import csv
@@ -36,8 +37,9 @@ def build_network_map(network: str):
                 vendor = None
 
             hostname = get_hostname(host)
-
             os_info = detect_os(host, ports=open_ports, mac_vendor=vendor)
+
+            traceroute_result = traceroute_host(host)
 
             with lock:
                 results.append({
@@ -47,6 +49,7 @@ def build_network_map(network: str):
                     "vendor": vendor,
                     "open_ports": open_ports,
                     "os_info": os_info,
+                    "traceroute": traceroute_result
                 })
             progress.update(1)
 
@@ -63,10 +66,12 @@ def save_network_map(results, output_dir: str, prefix="network_map"):
         json.dump(results, f, indent=4, ensure_ascii=False)
 
     with open(csv_file, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["host", "hostname", "mac", "vendor", "open_ports", "os_info"])
+        writer = csv.DictWriter(f, fieldnames=["host", "hostname", "mac", "vendor", "open_ports", "os_info", "traceroute"])
         writer.writeheader()
         for row in results:
-            writer.writerow(row)
+            row_copy = row.copy()
+            row_copy["traceroute"] = json.dumps(row_copy["traceroute"], ensure_ascii=False)
+            writer.writerow(row_copy)
 
     return json_file, csv_file
 

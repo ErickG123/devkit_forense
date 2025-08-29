@@ -1,7 +1,6 @@
 import platform
 import subprocess
-
-from scapy.all import conf
+from scapy.all import conf, ARP, Ether, srp
 
 conf.verb = 0
 
@@ -35,3 +34,28 @@ def ping_sweep(network):
                 hosts.append(ip)
 
     return hosts
+
+def parse_network(network: str):
+    if "-" in network:
+        base_ip = network.rsplit(".", 1)[0]
+        start, end = network.rsplit(".", 1)[1].split("-")
+        return [f"{base_ip}.{i}" for i in range(int(start), int(end)+1)]
+    else:
+        return [network]
+
+
+def ping_host(ip: str) -> bool:
+    if platform.system() == "Windows":
+        try:
+            output = subprocess.run(
+                ["ping", "-n", "1", "-w", "500", ip],
+                capture_output=True,
+                text=True
+            )
+            return "TTL=" in output.stdout.upper()
+        except:
+            return False
+    else:
+        pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
+        ans, _ = srp(pkt, timeout=1, verbose=0)
+        return bool(ans)

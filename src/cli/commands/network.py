@@ -3,7 +3,8 @@ from rich import print
 
 from core.network.network_map import run as run_network_map
 from core.network.port_scanner import scan_host
-from core.network.ping_sweep import ping_sweep
+from core.network.ping_sweep import parse_network, ping_host
+from core.network.fingerprinting import detect_os
 
 network_app = typer.Typer()
 
@@ -26,5 +27,19 @@ def scan(
 def sweep(
     network: str = typer.Option(..., help="Range de IPs da rede, ex: 192.168.1.1-254"),
 ):
-    result = ping_sweep(network)
+    ips = parse_network(network)
+    alive_hosts = []
+
+    with typer.progressbar(ips, label="Scanning network") as progress:
+        for ip in progress:
+            if ping_host(ip):
+                alive_hosts.append(ip)
+
+    typer.echo(f"Hosts ativos: {alive_hosts}")
+
+@network_app.command("fingerprinting")
+def fingerprinting(
+    ip: str = typer.Option(..., help="IP da red, ex: 192.168.0.0")
+):
+    result = detect_os(ip)
     print(result)

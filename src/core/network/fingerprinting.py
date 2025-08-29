@@ -1,6 +1,9 @@
 import subprocess
 import platform
 import re
+import typer
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 SERVER_PORTS = [21, 22, 23, 25, 53, 80, 443, 139, 445, 3306, 3389]
 SERVER_TYPE_MAP = {
@@ -24,20 +27,18 @@ VERSION_ALERTS = {
     "mysql": ["MySQL 5.5"]
 }
 
-def extract_service_version(banner):
+lock = threading.Lock()
+
+def extract_service_version(banner: str):
     if not banner:
         return None
     match = re.search(r"([a-zA-Z]+)[ /]?([0-9]+\.[0-9]+(?:\.[0-9]+)?)", banner)
     if match:
         return f"{match.group(1)} {match.group(2)}"
-    return banner.strip() if banner else None
+    return banner.strip()
 
-def detect_os(ip, ports=None, mac_vendor=None):
+def detect_os_single(ip: str):
     os_estimate = "Desconhecido"
-    host_type = "Desconhecido"
-    services = []
-    alerts = []
-
     try:
         ping_cmd = ["ping", "-c", "1", "-W", "1", ip] if platform.system() != "Windows" else ["ping", "-n", "1", "-w", "1000", ip]
         ping_proc = subprocess.run(ping_cmd, capture_output=True, text=True)
@@ -49,8 +50,15 @@ def detect_os(ip, ports=None, mac_vendor=None):
                 os_estimate = "Linux/Unix"
             elif ttl <= 128:
                 os_estimate = "Windows"
-    except:
+    except Exception:
         os_estimate = "Host inatingível"
+    return os_estimate
+
+def detect_os(ip: str, ports=None, mac_vendor=None):
+    os_estimate = detect_os_single(ip)
+    host_type = "Desconhecido"
+    services = []
+    alerts = []
 
     if ports:
         for p in ports:
@@ -82,10 +90,7 @@ def detect_os(ip, ports=None, mac_vendor=None):
     if ports and host_type == "Desconhecido":
         port_numbers = [p["port"] for p in ports]
         server_ports = [p for p in SERVER_PORTS if p in port_numbers]
-        if server_ports:
-            host_type = "Servidor"
-        else:
-            host_type = "Desktop"
+        host_type = "Servidor" if server_ports else "Desktop"
 
     return {
         "os": os_estimate,
@@ -93,3 +98,20 @@ def detect_os(ip, ports=None, mac_vendor=None):
         "services": services,
         "alerts": alerts
     }
+
+def detect_os_with_progress(ip_ports_list):
+    results = []
+    with typer.progressbar(ip_ports_list, label="Fingerprinting") as progress:
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            futures = {executor.submit(detect_os, ip_ports['ip'], ip_ports.get('ports'), ip_ports.get('mac')): ip_ports for ip_ports in ip_ports_list}
+
+            for future in as_completed(futures):
+                ip_ports = futures[future]
+                try:
+                    res = future.result()
+                    with lock:
+                        results.append({"ip": ip_ports['ip'], "fingerprint": res})
+                except Exception:
+                    pass
+                progress.update(1)
+    return results

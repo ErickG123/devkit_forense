@@ -41,5 +41,15 @@ def sweep(
 def fingerprinting(
     ip: str = typer.Option(..., help="IP da red, ex: 192.168.0.0")
 ):
-    result = detect_os(ip)
+    typer.echo(f"[+] Verificando se {ip} está ativo...")
+    if not ping_host(ip):
+        typer.echo(f"[-] Host {ip} inatingível. Ping falhou.")
+        return
+
+    typer.echo(f"[+] Escaneando portas de {ip}...")
+    ports = scan_host(ip)
+
+    typer.echo(f"[+] Detectando OS, serviços e alertas...")
+    result = detect_os(ip, ports=ports)
+
     print(result)

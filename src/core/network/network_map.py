@@ -7,6 +7,8 @@ import json
 import csv
 import os
 from datetime import datetime
+import typer
+import threading
 
 try:
     from scapy.all import conf
@@ -15,30 +17,38 @@ except Exception:
     from scapy.all import conf, L3RawSocket
     conf.L2socket = L3RawSocket
 
+lock = threading.Lock()
+
 def build_network_map(network: str):
     hosts = ping_sweep(network)
     results = []
-    for host in hosts:
-        open_ports = scan_host(host)
-        
-        try:
-            mac = get_mac(host)
-            vendor = get_vendor(mac) if mac else None
-        except Exception:
-            mac = None
-            vendor = None
 
-        hostname = get_hostname(host)
-        os_info = detect_os(host, ports=open_ports, mac_vendor=vendor)
+    typer.echo(f"[+] Iniciando varredura da rede ({len(hosts)} hosts ativos)...")
+    with typer.progressbar(hosts, label="Network Map") as progress:
+        for host in hosts:
+            open_ports = scan_host(host)
 
-        results.append({
-            "host": host,
-            "hostname": hostname,
-            "mac": mac,
-            "vendor": vendor,
-            "open_ports": open_ports,
-            "os_info": os_info,
-        })
+            try:
+                mac = get_mac(host)
+                vendor = get_vendor(mac) if mac else None
+            except Exception:
+                mac = None
+                vendor = None
+
+            hostname = get_hostname(host)
+
+            os_info = detect_os(host, ports=open_ports, mac_vendor=vendor)
+
+            with lock:
+                results.append({
+                    "host": host,
+                    "hostname": hostname,
+                    "mac": mac,
+                    "vendor": vendor,
+                    "open_ports": open_ports,
+                    "os_info": os_info,
+                })
+            progress.update(1)
 
     return results
 
@@ -64,6 +74,7 @@ def run(network: str, output_dir: str, prefix="network_map"):
     results = build_network_map(network)
     json_file, csv_file = save_network_map(results, output_dir, prefix)
 
+    typer.echo(f"[+] Network map salvo em: {json_file} e {csv_file}")
     return {
         "results": results,
         "json_file": json_file,

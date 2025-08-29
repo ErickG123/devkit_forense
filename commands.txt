@@ -11,3 +11,6 @@ Tags e Releases:
 git commit -m "[minor] Adiciona nova feature" → incrementa minor
 git commit -m "[major] Quebra compatibilidade" → incrementa major
 git commit -m "Fix de bug" → incrementa patch automaticamente
+
+Instalar a lib localmente:
+pip install -e .

@@ -1,6 +1,6 @@
 import socket
+
 from concurrent.futures import ThreadPoolExecutor
-import platform
 
 COMMON_TCP_PORTS = [
     21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445,

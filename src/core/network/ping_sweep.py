@@ -1,6 +1,7 @@
 import platform
 import subprocess
-from scapy.all import sr1, IP, ICMP, conf
+
+from scapy.all import conf
 
 conf.verb = 0
 

@@ -8,15 +8,28 @@ import csv
 import os
 from datetime import datetime
 
+try:
+    from scapy.all import conf
+    conf.L2socket
+except Exception:
+    from scapy.all import conf, L3RawSocket
+    conf.L2socket = L3RawSocket
+
 def build_network_map(network: str):
     hosts = ping_sweep(network)
     results = []
     for host in hosts:
         open_ports = scan_host(host)
-        mac = get_mac(host)
-        vendor = get_vendor(mac) if mac else None
+        
+        try:
+            mac = get_mac(host)
+            vendor = get_vendor(mac) if mac else None
+        except Exception:
+            mac = None
+            vendor = None
+
         hostname = get_hostname(host)
-        os_info = detect_os(host)
+        os_info = detect_os(host, ports=open_ports, mac_vendor=vendor)
 
         results.append({
             "host": host,
@@ -46,7 +59,6 @@ def save_network_map(results, output_dir: str, prefix="network_map"):
             writer.writerow(row)
 
     return json_file, csv_file
-
 
 def run(network: str, output_dir: str, prefix="network_map"):
     results = build_network_map(network)

@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          tags: true
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -50,34 +51,62 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout code with tags
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          tags: true
 
-      - name: Get latest tag and increment patch
+      - name: Get latest tag and increment version based on commits
         id: get_tag
         run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          
-          VERSION=${LATEST_TAG#v}
-          IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
-          
-          MAJOR=${VERSION_PARTS[0]:-0}
-          MINOR=${VERSION_PARTS[1]:-0}
-          PATCH=${VERSION_PARTS[2]:-0}
-          
-          NEW_PATCH=$((PATCH + 1))
-          NEW_TAG="v$MAJOR.$MINOR.$NEW_PATCH"
-          
+          # Pega última tag existente
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LATEST_TAG" ]; then
+              # Sem tags existentes: versão inicial
+              NEW_MAJOR=0
+              NEW_MINOR=0
+              NEW_PATCH=1
+              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+              echo "No existing tag found. Starting with $NEW_TAG"
+          else
+              echo "Latest tag: $LATEST_TAG"
+              VERSION=${LATEST_TAG#v}
+              IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
+
+              MAJOR=${VERSION_PARTS[0]:-0}
+              MINOR=${VERSION_PARTS[1]:-0}
+              PATCH=${VERSION_PARTS[2]:-0}
+
+              # Pega commits desde a última tag
+              COMMITS=$(git log $LATEST_TAG..HEAD --pretty=%B)
+
+              if echo "$COMMITS" | grep -q "\[major\]"; then
+                  NEW_MAJOR=$((MAJOR + 1))
+                  NEW_MINOR=0
+                  NEW_PATCH=0
+              elif echo "$COMMITS" | grep -q "\[minor\]"; then
+                  NEW_MAJOR=$MAJOR
+                  NEW_MINOR=$((MINOR + 1))
+                  NEW_PATCH=0
+              else
+                  NEW_MAJOR=$MAJOR
+                  NEW_MINOR=$MINOR
+                  NEW_PATCH=$((PATCH + 1))
+              fi
+
+              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+          fi
+
+          echo "New tag: $NEW_TAG"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
       - name: Create and push tag (if not exists)
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          
+
           if git rev-parse "refs/tags/${{ steps.get_tag.outputs.new_tag }}" >/dev/null 2>&1; then
             echo "Tag ${{ steps.get_tag.outputs.new_tag }} already exists. Skipping creation."
           else

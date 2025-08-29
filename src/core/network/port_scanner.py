@@ -1,8 +1,11 @@
 import socket
 from concurrent.futures import ThreadPoolExecutor
+import platform
 
-COMMON_TCP_PORTS = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445,
-                    3389, 3306, 8080, 8443, 5900, 135, 995, 993, 1723]
+COMMON_TCP_PORTS = [
+    21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445,
+    3389, 3306, 8080, 8443, 5900, 135, 995, 993, 1723
+]
 COMMON_UDP_PORTS = [53, 67, 68, 69, 123, 161, 162, 500, 514]
 
 PORT_ALERTS = {
@@ -70,5 +73,5 @@ def scan_host(ip, tcp_ports=None, udp_ports=None):
             executor.submit(scan_tcp, ip, port, results)
         for port in udp_ports:
             executor.submit(scan_udp, ip, port, results)
-    
+
     return results

@@ -6,3 +6,8 @@ pip install pyinstaller
 
 Build:
 pyinstaller --onefile --name forensic-cli --console --add-data "src/core;core" --add-data "src/api;api" src/cli/cli.py
+
+Tags e Releases:
+git commit -m "[minor] Adiciona nova feature" → incrementa minor
+git commit -m "[major] Quebra compatibilidade" → incrementa major
+git commit -m "Fix de bug" → incrementa patch automaticamente

@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # pega todo o histórico, incluindo tags
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -58,7 +58,6 @@ jobs:
       - name: Get latest tag and increment version based on commits
         id: get_tag
         run: |
-          # Pega última tag existente
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LATEST_TAG" ]; then
@@ -75,7 +74,6 @@ jobs:
               MINOR=${VERSION_PARTS[1]:-0}
               PATCH=${VERSION_PARTS[2]:-0}
 
-              # Pega todos os commits desde a última tag
               COMMITS=$(git log $LATEST_TAG..HEAD --pretty=%B)
 
               if echo "$COMMITS" | grep -q "\[major\]"; then
@@ -91,7 +89,6 @@ jobs:
                   NEW_MINOR=$MINOR
                   NEW_PATCH=$((PATCH + 1))
               else
-                  # Nenhuma marca encontrada, incrementa patch por padrão
                   NEW_MAJOR=$MAJOR
                   NEW_MINOR=$MINOR
                   NEW_PATCH=$((PATCH + 1))

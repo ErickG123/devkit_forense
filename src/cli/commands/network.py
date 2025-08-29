@@ -7,13 +7,18 @@ from core.network.port_scanner import scan_host
 from core.network.ping_sweep import parse_network, ping_host
 from core.network.fingerprinting import detect_os
 from core.network.traceroute import traceroute_host
+from core.network.arp_scan import arp_scan
+from core.network.dns_recon import dns_recon
+from core.network.ip_info import ip_info_lookup
+from core.network.smb_scan import smb_scan
+from core.network.snmp_scan import snmp_scan
 
 network_app = typer.Typer()
 
 @network_app.command("map")
 def map(
     network: str = typer.Option(..., help="Range de IPs da rede, ex: 192.168.1.1-254"),
-    output_dir: str = typer.Option("./output", help="Diretório para salvar os resultados"),
+    output_dir: str = typer.Option("../../output", help="Diretório para salvar os resultados"),
 ):
     result = run_network_map(network, output_dir)
     typer.echo(f"Resultados salvos em: {result['json_file']} e {result['csv_file']}")
@@ -80,3 +85,38 @@ def traceroute(
 
             print(hop_text)
             progress.update(1)
+
+@network_app.command("arpscan")
+def arp(
+    network: str = typer.Option(..., help="Range de IPs da rede, ex: 192.168.1.1-254"),
+):
+    result = arp_scan(network)
+    print(result)
+
+@network_app.command("dnscan")
+def dns(
+    ip: str = typer.Option(..., help="IP ou hostname do destino"),
+):
+    result = dns_recon([ip])
+    print(result)
+
+@network_app.command("ipinfo")
+def ip_info(
+    ip: str = typer.Option(..., help="IP ou hostname do destino"),
+):
+    result = ip_info_lookup(ip)
+    print(result)
+
+@network_app.command("smbscan")
+def smb(
+    ip: str = typer.Option(..., help="IP ou hostname do destino")
+):
+    result = smb_scan([ip])
+    print(result)
+
+@network_app.command("snmpscan")
+def snmp(
+    ip: str = typer.Option(..., help="IP ou hostname do destino")
+):
+    result = snmp_scan(ip)
+    print(result)

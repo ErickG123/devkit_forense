@@ -35,3 +35,5 @@ dist/
 .vscode/
 
 cli_output
+
+output

@@ -35,7 +35,9 @@ jobs:
       - name: Build executable
         run: |
           .\venv\Scripts\activate
-          pyinstaller --onefile --name forensic-cli --console --add-data "src/core;core" --add-data "src/api;api" src/cli/main.py
+          pyinstaller --onefile --name forensic-cli --console \
+            --add-data "src/core;core" --add-data "src/api;api" \
+            src/cli/main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -50,7 +52,7 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout code with tags
+      - name: Checkout code with full history
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -58,11 +60,9 @@ jobs:
       - name: Get latest tag and increment version based on commits
         id: get_tag
         run: |
-          # Pega última tag existente
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           if [ -z "$LATEST_TAG" ]; then
-              # Sem tags existentes: versão inicial
               NEW_MAJOR=0
               NEW_MINOR=0
               NEW_PATCH=1
@@ -72,12 +72,10 @@ jobs:
               echo "Latest tag: $LATEST_TAG"
               VERSION=${LATEST_TAG#v}
               IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
-
               MAJOR=${VERSION_PARTS[0]:-0}
               MINOR=${VERSION_PARTS[1]:-0}
               PATCH=${VERSION_PARTS[2]:-0}
 
-              # Pega commits desde a última tag
               COMMITS=$(git log $LATEST_TAG..HEAD --pretty=%B)
 
               if echo "$COMMITS" | grep -q "\[major\]"; then
@@ -88,6 +86,10 @@ jobs:
                   NEW_MAJOR=$MAJOR
                   NEW_MINOR=$((MINOR + 1))
                   NEW_PATCH=0
+              elif echo "$COMMITS" | grep -q "\[patch\]"; then
+                  NEW_MAJOR=$MAJOR
+                  NEW_MINOR=$MINOR
+                  NEW_PATCH=$((PATCH + 1))
               else
                   NEW_MAJOR=$MAJOR
                   NEW_MINOR=$MINOR
@@ -100,7 +102,7 @@ jobs:
           echo "New tag: $NEW_TAG"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
-      - name: Create and push tag (if not exists)
+      - name: Create and push tag if not exists
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"

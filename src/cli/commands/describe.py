@@ -3,7 +3,7 @@ from rich import print
 
 describe_app = typer.Typer()
 
-@describe_app.command("describe")
+@describe_app.command("func")
 def describe(
     func: str = typer.Argument(..., help="Digite o nome da função que você deseja entender")
 ):

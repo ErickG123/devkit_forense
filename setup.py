@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="forensic_cli",
-    version="1.0.2",
+    version="1.1.0",
     author="Erick Gabriel dos Santos Alves",
     author_email="erickgabrielalves0@gmail.com",
     description="Toolkit modular para análise de evidências digitais",

@@ -116,7 +116,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: forensic-cli-exe
-          path: ./dist
+          path: ./dist/exe
 
       - name: Check if release exists
         id: check_release
@@ -132,7 +132,7 @@ jobs:
       - name: Create release if not exists
         if: steps.check_release.outputs.exists == 'false'
         run: |
-          gh release create ${{ steps.get_tag.outputs.new_tag }} ./dist/forensic-cli.exe \
+          gh release create ${{ steps.get_tag.outputs.new_tag }} ./dist/exe/forensic-cli.exe \
             --title "Forensic CLI ${{ steps.get_tag.outputs.new_tag }}" \
             --notes "Automated release from main branch merge. Commit: ${{ github.sha }}"
         env:
@@ -149,11 +149,10 @@ jobs:
           pip install build twine
 
       - name: Build Python package
-        run: python -m build
+        run: python -m build --outdir dist/pypi
 
       - name: Publish to TestPyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
-        run: |
-          twine upload --repository testpypi dist/*
+        run: twine upload --repository testpypi dist/pypi/*

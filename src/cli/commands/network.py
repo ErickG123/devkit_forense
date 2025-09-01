@@ -72,7 +72,7 @@ def traceroute(
     with typer.progressbar(hops, label="Traceroute") as progress:
         for h in hops:
             rtt = h["rtt"]
-            hop_text = Text(f"Hop {h['hop']}: {h['domain']} - RTT: ")
+            hop_text = Text(f" Hop {h['hop']}: {h.get('domain', h['ip'])} - RTT: ")
 
             if rtt is None:
                 hop_text.append("inacessível", style="grey50")

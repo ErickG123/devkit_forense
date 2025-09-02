@@ -145,9 +145,12 @@ jobs:
 
       - name: Generate Changelog
         run: |
-          python generate_changelog.py
+          python docs/generate_changelog.py
           cat README.md CHANGELOG.md > README_WITH_CHANGELOG.md
-        
+
+      - name: Generate index.html for GitHub Pages
+        run: python docs/generate_index.py
+
       - name: Deploy GitHub Pages (Docs + Changelog)
         uses: peaceiris/actions-gh-pages@v3.9.2
         with:

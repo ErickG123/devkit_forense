@@ -104,4 +104,4 @@ forensic-cli = "cli.main:app"
 [project.urls]
 Changelog = "https://erickg123.github.io/devkit_forense/"
 Source = "https://github.com/ErickG123/devkit_forense"
-Issues = https://github.com/ErickG123/devkit_forense/issues
+Issues = "https://github.com/ErickG123/devkit_forense/issues"

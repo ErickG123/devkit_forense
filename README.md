@@ -53,27 +53,25 @@ O DevKit está organizado em três camadas principais:
 ### Network
 | Módulo | Descrição |
 |--------|-----------|
+| `ip_info` | Consulta informações detalhadas sobre um endereço IP. |
 | `arp_scan` | Varre a rede para identificar dispositivos conectados via ARP. |
 | `dns_recon` | Realiza levantamento de informações de DNS de domínios e hosts. |
-| `fingerprinting` | Identifica sistemas, serviços e versões na rede. |
-| `ip_info` | Consulta informações detalhadas sobre um endereço IP. |
-| `network_map` | Gera mapa visual de hosts e conexões detectadas. |
-| `ping_sweep` | Verifica quais hosts estão ativos em uma faixa de IP. |
-| `port_scanner` | Identifica portas abertas e serviços ativos em hosts. |
 | `snmp_scan` | Realiza varredura SNMP em dispositivos de rede. |
+| `ping_sweep` | Verifica quais hosts estão ativos em uma faixa de IP. |
 | `traceroute` | Traça o caminho percorrido por pacotes até um host alvo. |
+| `network_map` | Gera mapa visual de hosts e conexões detectadas. |
+| `port_scanner` | Identifica portas abertas e serviços ativos em hosts. |
+| `fingerprinting` | Identifica sistemas, serviços e versões na rede. |
 
 ### Browser
 | Módulo | Descrição |
 |--------|-----------|
-| `browser_history` | Coleta histórico de navegação de diferentes browsers. |
-| `common_words` | Identifica palavras mais comuns em histórico de navegação e downloads. |
-| `downloads_history` | Lista arquivos baixados pelos usuários. |
+| `logins` | Extração de credenciais armazenadas no Chrome e Edge. |
 | `fav_screen` | Captura e organiza screenshots de sites favoritos ou acessados. |
-| `full_browser_history` | Consolida todo histórico de navegação em um único relatório. |
-| `logins_chrome` | Extração de credenciais armazenadas no Chrome. |
-| `logins_edge` | Extração de credenciais armazenadas no Edge. |
+| `common_words` | Identifica palavras mais comuns em histórico de navegação e downloads. |
+| `browser_history` | Coleta histórico de navegação de diferentes browsers. |
 | `unusual_patterns` | Identifica padrões suspeitos em histórico de navegação ou downloads. |
+| `downloads_history` | Lista arquivos baixados pelos usuários. |
 
 ### Email
 | Módulo | Descrição |

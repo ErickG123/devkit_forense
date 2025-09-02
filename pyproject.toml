@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "forensic-cli"
-version = "1.2.6"
+version = "1.2.7"
 description = "DevKit Forense - CLI para análise de navegadores e rede"
 readme = "README.md"
 license = {text = "MIT"}
@@ -104,3 +104,4 @@ forensic-cli = "cli.main:app"
 [project.urls]
 Changelog = "https://erickg123.github.io/devkit_forense/"
 Source = "https://github.com/ErickG123/devkit_forense"
+Issues = https://github.com/ErickG123/devkit_forense/issues

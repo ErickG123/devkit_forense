@@ -9,16 +9,10 @@
    - [Network](#network)  
    - [Browser](#browser)  
    - [Email](#email)  
-4. [Aplicações de Apoio](#aplicações-de-apoio)  
-   - [Dashboard](#dashboard)  
-   - [Visualizadores de Resultados](#visualizadores-de-resultados)  
-   - [Assistente Interativo (Wizard)](#assistente-interativo-wizard)  
-5. [Fluxo de Integração](#fluxo-de-integração)  
-6. [Tecnologias Utilizadas](#tecnologias-utilizadas)  
-7. [Planejamento e Futuras Extensões](#planejamento-e-futuras-extensões)  
-8. [Instalação](#instalação)  
-9. [Exemplos de Execução](#exemplos-de-execução)  
-10. [Considerações Finais](#considerações-finais)
+4. [Tecnologias Utilizadas](#tecnologias-utilizadas)  
+5. [Planejamento e Futuras Extensões](#planejamento-e-futuras-extensões)  
+6. [Instalação](#instalação)  
+7. [Exemplos de Execução](#exemplos-de-execução)  
 
 ---
 
@@ -51,84 +45,38 @@ O DevKit está organizado em três camadas principais:
 ## 3. Módulos Forenses
 
 ### Network
-| Módulo | Descrição |
+| Função | Descrição |
 |--------|-----------|
-| `ip_info` | Consulta informações detalhadas sobre um endereço IP. |
-| `arp_scan` | Varre a rede para identificar dispositivos conectados via ARP. |
-| `dns_recon` | Realiza levantamento de informações de DNS de domínios e hosts. |
-| `snmp_scan` | Realiza varredura SNMP em dispositivos de rede. |
-| `ping_sweep` | Verifica quais hosts estão ativos em uma faixa de IP. |
+| `ipinfo` | Consulta informações detalhadas sobre um endereço IP. |
+| `arpscan` | Varre a rede para identificar dispositivos conectados via ARP. |
+| `dnscan` | Realiza levantamento de informações de DNS de domínios e hosts. |
+| `snmpscan` | Realiza varredura SNMP em dispositivos de rede. |
+| `smbscan` | Verifica serviços SMB ativos em um host . |
+| `sweep` | Verifica quais hosts estão ativos em uma faixa de IP. |
 | `traceroute` | Traça o caminho percorrido por pacotes até um host alvo. |
-| `network_map` | Gera mapa visual de hosts e conexões detectadas. |
-| `port_scanner` | Identifica portas abertas e serviços ativos em hosts. |
+| `map` | Gera mapa visual de hosts e conexões detectadas. |
+| `scan` | Identifica portas abertas e serviços ativos em hosts. |
 | `fingerprinting` | Identifica sistemas, serviços e versões na rede. |
 
 ### Browser
-| Módulo | Descrição |
+| Função | Descrição |
 |--------|-----------|
 | `logins` | Extração de credenciais armazenadas no Chrome e Edge. |
-| `fav_screen` | Captura e organiza screenshots de sites favoritos ou acessados. |
-| `common_words` | Identifica palavras mais comuns em histórico de navegação e downloads. |
-| `browser_history` | Coleta histórico de navegação de diferentes browsers. |
-| `unusual_patterns` | Identifica padrões suspeitos em histórico de navegação ou downloads. |
-| `downloads_history` | Lista arquivos baixados pelos usuários. |
+| `favscreen` | Captura e organiza screenshots de sites favoritos ou acessados. |
+| `words` | Identifica palavras mais comuns em histórico de navegação e downloads. |
+| `history` | Coleta histórico de navegação de diferentes browsers. |
+| `patterns` | Identifica padrões suspeitos em histórico de navegação ou downloads. |
+| `downloads` | Lista arquivos baixados pelos usuários. |
 
 ### Email
-| Módulo | Descrição |
+| Função | Descrição |
 |--------|-----------|
 | `email_parser` | Extrai e organiza informações de emails. |
 | `header_analysis` | Analisa cabeçalhos para identificar origem, roteamento e possíveis fraudes. |
 
 ---
 
-## 4. Aplicações de Apoio
-
-### Dashboard
-**Objetivo:** Centralizar informações e permitir execução rápida de módulos.  
-
-**Funcionalidades:**  
-- Menu lateral com módulos do DevKit.  
-- Cards com resumo de análises recentes.  
-- Acesso direto a visualizadores e Wizard.  
-
-**Tecnologias sugeridas:** Streamlit (web), PyQt (desktop).  
-
-### Visualizadores de Resultados
-**Objetivo:** Transformar saídas da CLI em gráficos e tabelas interativas.  
-
-**Exemplos:**  
-- Mapas de rede interativos.  
-- Timeline de eventos e logs.  
-- Gráficos de arquivos analisados, tipos e padrões suspeitos.  
-
-**Integração:** Recebe dados da CLI em formato JSON ou CSV.  
-
-### Assistente Interativo (Wizard)
-**Objetivo:** Guiar o usuário passo a passo em tarefas complexas.  
-
-**Exemplo de fluxo:**  
-1. Seleção do tipo de análise (pendrive, rede, logs, etc.)  
-2. Configuração de opções (scan de malware, intervalo de IP, dispositivo alvo)  
-3. Execução automática dos módulos necessários  
-4. Geração de relatórios e acesso aos visualizadores  
-
-**Tecnologias sugeridas:**  
-- Terminal interativo (`questionary`, `PyInquirer`)  
-- Web/Desktop (mesmo framework do Dashboard)  
-
----
-
-## 5. Fluxo de Integração
-
-1. CLI executa módulos → gera resultados.  
-2. API possibilita integração programática com dashboards e outras aplicações.  
-3. Dashboard centraliza execução e resumo dos resultados.  
-4. Visualizadores transformam dados em gráficos e tabelas interativas.  
-5. Wizard guia o usuário em tarefas complexas.  
-
----
-
-## 6. Tecnologias Utilizadas
+## 4. Tecnologias Utilizadas
 
 - **Python** – Linguagem principal do projeto.  
 - **FastAPI** – API para integração e execução de módulos.  
@@ -137,7 +85,7 @@ O DevKit está organizado em três camadas principais:
 
 ---
 
-## 7. Planejamento e Futuras Extensões
+## 5. Planejamento e Futuras Extensões
 
 | Aplicação / Módulo | Objetivo | Possíveis Extensões |
 |-------------------|----------|------------------|
@@ -149,33 +97,23 @@ O DevKit está organizado em três camadas principais:
 
 ---
 
-## 8. Instalação
+## 6. Instalação
 
 ```bash
-# Clonar o repositório
-git clone https://github.com/ErickG123/devkit_forense.git
-cd devkit-forense
-
-# Criar ambiente virtual
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate    # Windows
-
-# Instalar dependências
-pip install -r requirements.txt
+pip install forensic-cli
 ```
 
 ---
 
-## 9. Exemplos de Execução
+## 7. Exemplos de Execução
 
 **CLI:**
 ```bash
 # Executar módulo de network scan
-python cli.py network_map --target 192.168.0.0/24
+forensic-cli network map --network 192.168.0.0/24
 
 # Coletar histórico do Chrome
-python cli.py browser_history --browser chrome
+forensic-cli browser history --chrome
 ```
 
 **API:**
@@ -183,11 +121,3 @@ python cli.py browser_history --browser chrome
 # Executar API
 uvicorn api.main:app --reload
 ```
-
----
-
-## 10. Considerações Finais
-
-O DevKit Forense combina **educação e prática**, permitindo que usuários explorem análise forense digital de forma segura, didática e interativa.  
-As aplicações de apoio aumentam a acessibilidade e engajamento, tornando o estudo da perícia digital mais visual e intuitivo.  
-O planejamento de novos módulos e ferramentas garante evolução contínua da plataforma, mantendo-a atualizada e relevante para atividades acadêmicas e laboratoriais.

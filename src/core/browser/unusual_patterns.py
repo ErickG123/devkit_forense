@@ -17,10 +17,10 @@ def tratar_data_acesso(data_str):
         print(f"[ALERTA] Erro ao processar data: {data_str}. Erro: {e}")
         return None
 
-def detectar_acessos_horarios_diferentes(df):
+def detectar_acessos_horarios_diferentes(df, output_dir=None, arquivo_prefixo=""):
     df['ultimo_acesso'] = df['ultimo_acesso'].apply(tratar_data_acesso)
-    df = df.dropna(subset=['ultimo_acesso'])
-    df['hora'] = df['ultimo_acesso'].dt.hour
+    df = df.dropna(subset=['ultimo_acesso']).copy()
+    df.loc[:, 'hora'] = df['ultimo_acesso'].dt.hour
 
     acessos_madrugada = df[df['hora'].between(0, 6)]
     acessos_manha = df[df['hora'].between(7, 11)]
@@ -35,7 +35,14 @@ def detectar_acessos_horarios_diferentes(df):
     plt.ylabel('Número de Acessos')
     plt.xticks(rotation=0)
     plt.tight_layout()
-    plt.show()
+
+    if output_dir:
+        caminho_grafico = os.path.join(output_dir, f"{arquivo_prefixo}acessos_por_hora.png")
+        plt.savefig(caminho_grafico)
+        plt.close()
+        print(f"[INFO] Gráfico salvo em: {caminho_grafico}")
+    else:
+        plt.show()
 
     acessos_por_periodo = {
         "Madrugada (00h-06h)": len(acessos_madrugada),
@@ -61,12 +68,15 @@ def detectar_acessos_repetidos(df, intervalo_maximo=5):
         print(f"\nAcessos repetidos detectados em intervalos menores que {intervalo_maximo} minutos:")
         print(acessos_repetidos[['url', 'ultimo_acesso', 'diferenca']].head())
 
-def processar_historico_da_pasta(pasta):
+def processar_historico_da_pasta(pasta, output_dir=None):
     arquivos_json = [f for f in os.listdir(pasta) if f.endswith('.json')]
 
     if not arquivos_json:
         print("[ALERTA] Nenhum arquivo JSON encontrado na pasta especificada.")
         return
+
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
     for arquivo in arquivos_json:
         caminho_arquivo = os.path.join(pasta, arquivo)
@@ -75,9 +85,18 @@ def processar_historico_da_pasta(pasta):
 
             dados = carregar_json(caminho_arquivo)
 
-            df = pd.DataFrame(dados)
+            if "historico_completo" in dados:
+                lista_acessos = dados["historico_completo"]
+            elif "ultimas_10_urls" in dados:
+                lista_acessos = dados["ultimas_10_urls"]
+            else:
+                print(f"[AVISO] Nenhum histórico válido encontrado em {arquivo}")
+                continue
 
-            detectar_acessos_horarios_diferentes(df)
+            df = pd.DataFrame(lista_acessos).copy()
+
+            prefixo = os.path.splitext(arquivo)[0] + "_"
+            detectar_acessos_horarios_diferentes(df, output_dir=output_dir, arquivo_prefixo=prefixo)
             detectar_acessos_repetidos(df, intervalo_maximo=5)
 
         except Exception as erro:
@@ -86,8 +105,7 @@ def processar_historico_da_pasta(pasta):
 if __name__ == "__main__":
     try:
         pasta_json = "artefatos/historico"
-
-        processar_historico_da_pasta(pasta_json)
-
+        output_dir = "artefatos/patterns_output"
+        processar_historico_da_pasta(pasta_json, output_dir=output_dir)
     except Exception as erro:
         print(f"\n❌ Erro geral: {erro}")

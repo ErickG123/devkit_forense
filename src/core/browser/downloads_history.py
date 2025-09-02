@@ -6,14 +6,18 @@ import shutil
 from pathlib import Path
 
 def timestamp_chrome(microsegundos):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(microsegundos / 1000000 - 11644473600))
+    if microsegundos:
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(microsegundos / 1000000 - 11644473600))
+    return "N/A"
 
 def timestamp_firefox(microsegundos):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(microsegundos / 1000000))
+    if microsegundos:
+        return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(microsegundos / 1000000))
+    return "N/A"
 
-def salvar_em_json(dados, navegador, usuario):
-    os.makedirs("artefatos/downloads", exist_ok=True)
-    nome_arquivo = f"artefatos/downloads/Downloads_{navegador}_{usuario}.json"
+def salvar_em_json(dados, navegador, usuario, output_dir: Path):
+    output_dir.mkdir(parents=True, exist_ok=True)
+    nome_arquivo = output_dir / f"Downloads_{navegador}_{usuario}.json"
     with open(nome_arquivo, "w", encoding="utf-8") as f:
         json.dump(dados, f, indent=4, ensure_ascii=False)
     print(f"[✓] Arquivo salvo: {nome_arquivo}")
@@ -23,7 +27,7 @@ def copiar_banco(origem):
     shutil.copy2(origem, destino)
     return destino
 
-def extrair_downloads_chrome_edge(caminho_banco, navegador, usuario):
+def extrair_downloads_chrome_edge(caminho_banco, navegador, usuario, output_dir: Path):
     caminho_temp = copiar_banco(caminho_banco)
     try:
         conn = sqlite3.connect(caminho_temp)
@@ -50,7 +54,7 @@ def extrair_downloads_chrome_edge(caminho_banco, navegador, usuario):
                 "estado": state
             })
 
-        salvar_em_json(downloads, navegador, usuario)
+        salvar_em_json(downloads, navegador, usuario, output_dir)
 
     except Exception as e:
         print(f"[!] Erro ({navegador}): {e}")
@@ -58,7 +62,7 @@ def extrair_downloads_chrome_edge(caminho_banco, navegador, usuario):
         conn.close()
         os.remove(caminho_temp)
 
-def extrair_downloads_firefox(caminho_banco, usuario):
+def extrair_downloads_firefox(caminho_banco, usuario, output_dir: Path):
     caminho_temp = copiar_banco(caminho_banco)
     try:
         conn = sqlite3.connect(caminho_temp)
@@ -82,7 +86,7 @@ def extrair_downloads_firefox(caminho_banco, usuario):
                 "estado": state
             })
 
-        salvar_em_json(downloads, "Firefox", usuario)
+        salvar_em_json(downloads, "Firefox", usuario, output_dir)
 
     except Exception as e:
         print(f"[!] Erro (Firefox): {e}")
@@ -90,36 +94,36 @@ def extrair_downloads_firefox(caminho_banco, usuario):
         conn.close()
         os.remove(caminho_temp)
 
-def localizar_bancos_e_extrair():
+def extract_downloads_history(output_dir: Path, chrome=True, edge=True, firefox=True):
     usuario = os.getlogin()
-    home = str(Path.home())
+    home = Path.home()
 
-    caminho_chrome = os.path.join(home, "AppData", "Local", "Google", "Chrome", "User Data", "Default", "History")
-    if os.path.exists(caminho_chrome):
-        print("[*] Extraindo downloads do Chrome...")
-        extrair_downloads_chrome_edge(caminho_chrome, "Chrome", usuario)
-    else:
-        print("[!] Chrome não encontrado.")
-
-    caminho_edge = os.path.join(home, "AppData", "Local", "Microsoft", "Edge", "User Data", "Default", "History")
-    if os.path.exists(caminho_edge):
-        print("[*] Extraindo downloads do Edge...")
-        extrair_downloads_chrome_edge(caminho_edge, "Edge", usuario)
-    else:
-        print("[!] Edge não encontrado.")
-
-    caminho_firefox_perfis = os.path.join(home, "AppData", "Roaming", "Mozilla", "Firefox", "Profiles")
-    if os.path.exists(caminho_firefox_perfis):
-        for perfil in os.listdir(caminho_firefox_perfis):
-            caminho_downloads_sqlite = os.path.join(caminho_firefox_perfis, perfil, "downloads.sqlite")
-            if os.path.exists(caminho_downloads_sqlite):
-                print(f"[*] Extraindo downloads do Firefox ({perfil})...")
-                extrair_downloads_firefox(caminho_downloads_sqlite, usuario)
-                break
+    if chrome:
+        caminho_chrome = home / "AppData/Local/Google/Chrome/User Data/Default/History"
+        if caminho_chrome.exists():
+            print("[*] Extraindo downloads do Chrome...")
+            extrair_downloads_chrome_edge(caminho_chrome, "Chrome", usuario, output_dir)
         else:
-            print("[!] downloads.sqlite do Firefox não encontrado.")
-    else:
-        print("[!] Perfis do Firefox não encontrados.")
+            print("[!] Chrome não encontrado.")
 
-if __name__ == "__main__":
-    localizar_bancos_e_extrair()
+    if edge:
+        caminho_edge = home / "AppData/Local/Microsoft/Edge/User Data/Default/History"
+        if caminho_edge.exists():
+            print("[*] Extraindo downloads do Edge...")
+            extrair_downloads_chrome_edge(caminho_edge, "Edge", usuario, output_dir)
+        else:
+            print("[!] Edge não encontrado.")
+
+    if firefox:
+        caminho_firefox_perfis = home / "AppData/Roaming/Mozilla/Firefox/Profiles"
+        if caminho_firefox_perfis.exists():
+            for perfil in caminho_firefox_perfis.iterdir():
+                caminho_downloads_sqlite = perfil / "downloads.sqlite"
+                if caminho_downloads_sqlite.exists():
+                    print(f"[*] Extraindo downloads do Firefox ({perfil.name})...")
+                    extrair_downloads_firefox(caminho_downloads_sqlite, usuario, output_dir)
+                    break
+            else:
+                print("[!] downloads.sqlite do Firefox não encontrado.")
+        else:
+            print("[!] Perfis do Firefox não encontrados.")

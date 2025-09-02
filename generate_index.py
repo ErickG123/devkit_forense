@@ -1,4 +1,11 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+def generate_index():
+    docs_dir = Path("docs")
+    changelog_dir = docs_dir / "changelog"
+    changelog_files = sorted(changelog_dir.glob("*.md"), reverse=True)
+
+    html_content = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -27,23 +34,13 @@
     <div class="section">
         <h2>Changelog</h2>
         <ul>
-            <li><a href="changelog/v1.2.3.md">v1.2.3</a></li>
-            <li><a href="changelog/v1.2.2.md">v1.2.2</a></li>
-            <li><a href="changelog/v1.2.1.md">v1.2.1</a></li>
-            <li><a href="changelog/v1.2.0.md">v1.2.0</a></li>
-            <li><a href="changelog/v1.1.1.md">v1.1.1</a></li>
-            <li><a href="changelog/v1.1.0.md">v1.1.0</a></li>
-            <li><a href="changelog/v1.0.3.md">v1.0.3</a></li>
-            <li><a href="changelog/v1.0.2.md">v1.0.2</a></li>
-            <li><a href="changelog/v1.0.1.md">v1.0.1</a></li>
-            <li><a href="changelog/v1.0.0.md">v1.0.0</a></li>
-            <li><a href="changelog/v0.2.2.md">v0.2.2</a></li>
-            <li><a href="changelog/v0.2.1.md">v0.2.1</a></li>
-            <li><a href="changelog/v0.2.0.md">v0.2.0</a></li>
-            <li><a href="changelog/v0.1.0.md">v0.1.0</a></li>
-            <li><a href="changelog/v0.0.2.md">v0.0.2</a></li>
-            <li><a href="changelog/v0.0.1.md">v0.0.1</a></li>
-        </ul>
+"""
+
+    for file in changelog_files:
+        tag_name = file.stem
+        html_content += f'            <li><a href="changelog/{file.name}">{tag_name}</a></li>\n'
+
+    html_content += """        </ul>
     </div>
 
     <div class="section">
@@ -55,3 +52,11 @@
 
 </body>
 </html>
+"""
+
+    index_path = docs_dir / "index.html"
+    index_path.write_text(html_content, encoding="utf-8")
+    print(f"index.html gerado com {len(changelog_files)} links de changelog.")
+
+if __name__ == "__main__":
+    generate_index()

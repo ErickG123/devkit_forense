@@ -46,10 +46,16 @@ jobs:
   deploy-pypi:
     needs: build-windows
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
@@ -71,7 +77,7 @@ jobs:
         run: twine upload --repository pypi dist/pypi/* --verbose
 
   release:
-    needs: deploy-pypi
+    needs: [build-windows, deploy-pypi]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -92,9 +98,7 @@ jobs:
               NEW_MINOR=0
               NEW_PATCH=1
               NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
-              echo "No existing tag found. Starting with $NEW_TAG"
           else
-              echo "Latest tag: $LATEST_TAG"
               VERSION=${LATEST_TAG#v}
               IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
               MAJOR=${VERSION_PARTS[0]:-0}
@@ -111,10 +115,6 @@ jobs:
                   NEW_MAJOR=$MAJOR
                   NEW_MINOR=$((MINOR + 1))
                   NEW_PATCH=0
-              elif echo "$COMMITS" | grep -q "\[patch\]"; then
-                  NEW_MAJOR=$MAJOR
-                  NEW_MINOR=$MINOR
-                  NEW_PATCH=$((PATCH + 1))
               else
                   NEW_MAJOR=$MAJOR
                   NEW_MINOR=$MINOR
@@ -124,7 +124,6 @@ jobs:
               NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
           fi
 
-          echo "New tag: $NEW_TAG"
           echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
 
       - name: Create and push tag if not exists
@@ -164,11 +163,6 @@ jobs:
             --notes "Automated release from main branch merge. Commit: ${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up Python for PyPI upload
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
 
       - name: Generate Changelog
         run: |

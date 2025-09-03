@@ -10,9 +10,56 @@ permissions:
   contents: write
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  generate-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.set_tag.outputs.new_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+      - name: Get latest tag and increment version based on commits
+        id: set_tag
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LATEST_TAG" ]; then
+              NEW_TAG="v0.0.1"
+          else
+              VERSION=${LATEST_TAG#v}
+              IFS='.' read -ra PARTS <<< "$VERSION"
+              MAJOR=${PARTS[0]}
+              MINOR=${PARTS[1]}
+              PATCH=${PARTS[2]}
+
+              COMMITS=$(git log $LATEST_TAG..HEAD --pretty=%B)
+              if echo "$COMMITS" | grep -q "\[major\]"; then
+                  NEW_MAJOR=$((MAJOR + 1))
+                  NEW_MINOR=0
+                  NEW_PATCH=0
+              elif echo "$COMMITS" | grep -q "\[minor\]"; then
+                  NEW_MAJOR=$MAJOR
+                  NEW_MINOR=$((MINOR + 1))
+                  NEW_PATCH=0
+              else
+                  NEW_MAJOR=$MAJOR
+                  NEW_MINOR=$MINOR
+                  NEW_PATCH=$((PATCH + 1))
+              fi
+              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
+          fi
+
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+
+  build-windows:
+    needs: generate-tag
+    runs-on: windows-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,12 +91,13 @@ jobs:
           path: dist/forensic-cli.exe
 
   deploy-pypi:
-    needs: build-windows
+    needs: generate-tag
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -59,7 +107,7 @@ jobs:
       - name: Install build tools
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
+          pip install build twine setuptools_scm
 
       - name: Build Python package
         run: python -m build --outdir dist/pypi
@@ -77,66 +125,15 @@ jobs:
         run: twine upload --repository pypi dist/pypi/* --verbose
 
   release:
-    needs: [build-windows, deploy-pypi]
+    needs: [build-windows, deploy-pypi, generate-tag]
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
-      - name: Checkout code with full history
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Get latest tag and increment version based on commits
-        id: get_tag
-        run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-
-          if [ -z "$LATEST_TAG" ]; then
-              NEW_MAJOR=0
-              NEW_MINOR=0
-              NEW_PATCH=1
-              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
-          else
-              VERSION=${LATEST_TAG#v}
-              IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
-              MAJOR=${VERSION_PARTS[0]:-0}
-              MINOR=${VERSION_PARTS[1]:-0}
-              PATCH=${VERSION_PARTS[2]:-0}
-
-              COMMITS=$(git log $LATEST_TAG..HEAD --pretty=%B)
-
-              if echo "$COMMITS" | grep -q "\[major\]"; then
-                  NEW_MAJOR=$((MAJOR + 1))
-                  NEW_MINOR=0
-                  NEW_PATCH=0
-              elif echo "$COMMITS" | grep -q "\[minor\]"; then
-                  NEW_MAJOR=$MAJOR
-                  NEW_MINOR=$((MINOR + 1))
-                  NEW_PATCH=0
-              else
-                  NEW_MAJOR=$MAJOR
-                  NEW_MINOR=$MINOR
-                  NEW_PATCH=$((PATCH + 1))
-              fi
-
-              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
-          fi
-
-          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-
-      - name: Create and push tag if not exists
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-
-          if git rev-parse "refs/tags/${{ steps.get_tag.outputs.new_tag }}" >/dev/null 2>&1; then
-            echo "Tag ${{ steps.get_tag.outputs.new_tag }} already exists. Skipping creation."
-          else
-            git tag ${{ steps.get_tag.outputs.new_tag }}
-            git push origin ${{ steps.get_tag.outputs.new_tag }}
-          fi
 
       - name: Download built artifact
         uses: actions/download-artifact@v4
@@ -147,7 +144,7 @@ jobs:
       - name: Check if release exists
         id: check_release
         run: |
-          if gh release view ${{ steps.get_tag.outputs.new_tag }} >/dev/null 2>&1; then
+          if gh release view ${{ needs.generate-tag.outputs.new_tag }} >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -158,8 +155,8 @@ jobs:
       - name: Create release if not exists
         if: steps.check_release.outputs.exists == 'false'
         run: |
-          gh release create ${{ steps.get_tag.outputs.new_tag }} ./dist/exe/forensic-cli.exe \
-            --title "Forensic CLI ${{ steps.get_tag.outputs.new_tag }}" \
+          gh release create ${{ needs.generate-tag.outputs.new_tag }} ./dist/exe/forensic-cli.exe \
+            --title "Forensic CLI ${{ needs.generate-tag.outputs.new_tag }}" \
             --notes "Automated release from main branch merge. Commit: ${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

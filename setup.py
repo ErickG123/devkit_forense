@@ -2,12 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="forensic_cli",
-    use_scm_version=True,
-    setup_requires=["setuptools_scm"],
-    author="Erick Gabriel",
+    version="1.2.13",
+    author="Erick Gabriel dos Santos Alves",
     author_email="erickgabrielalves0@gmail.com",
     description="Toolkit modular para análise de evidências digitais",
-    long_description=open("README.md", encoding="utf-8").read(),
+    long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/ErickG123/devkit_forense",
     packages=find_packages(),

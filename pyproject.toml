@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel", "setuptools_scm"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "forensic-cli"
-version = "1.2.11"
+version = "1.2.13"
 description = "DevKit Forense - CLI para análise de navegadores e rede"
 readme = "README.md"
 license = {text = "MIT"}
@@ -94,10 +94,6 @@ dependencies = [
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["cli*", "core*"]
-
-[tool.setuptools_scm]
-version_scheme = "guess-next-dev"
-local_scheme = "node-and-date"
 
 [project.scripts]
 forensic-cli = "cli.main:app"

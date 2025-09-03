@@ -18,7 +18,7 @@ network_app = typer.Typer(help="Conjunto de ferramentas para análise e explora�
 @network_app.command("map", help="Mapeia dispositivos ativos na rede e salva os resultados em JSON/CSV")
 def map(
     network: str = typer.Option(..., help="Range de IPs da rede. Exemplo: 192.168.1.1-254"),
-    output_dir: str = typer.Option("../../output", help="Diretório para salvar os resultados"),
+    output_dir: str = typer.Option("./output", help="Diretório para salvar os resultados"),
 ):
     result = run_network_map(network, output_dir)
     typer.echo(f"Resultados salvos em: {result['json_file']} e {result['csv_file']}")

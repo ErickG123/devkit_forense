@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, request, render_template, redirect, url_for, flash, current_app
 import json
 from .utils.converter import convert_hosts_to_graph

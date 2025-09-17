@@ -1,9 +1,10 @@
 import typer
 from rich import print
 from rich.text import Text
+from rich.table import Table
 
 from core.network.network_map import run as run_network_map
-from core.network.port_scanner import scan_host
+from core.network.port_scanner import scan_host, parse_ports
 from core.network.ping_sweep import parse_network, ping_host
 from core.network.fingerprinting import detect_os
 from core.network.traceroute import traceroute_host
@@ -15,20 +16,80 @@ from core.network.snmp_scan import snmp_scan
 
 network_app = typer.Typer(help="Conjunto de ferramentas para análise e exploração de redes")
 
-@network_app.command("map", help="Mapeia dispositivos ativos na rede e salva os resultados em JSON/CSV")
+@network_app.command("map", help="Mapeia dispositivos ativos na rede e salva os resultados")
 def map(
-    network: str = typer.Option(..., help="Range de IPs da rede. Exemplo: 192.168.1.1-254"),
-    output_dir: str = typer.Option("./output", help="Diretório para salvar os resultados"),
+    network: str = typer.Option(..., "--network", "-n", help="Range de IPs da rede. Ex: 192.168.1.1-254"),
+
+    ports: str = typer.Option(
+        "21,22,80,443,445,8080", 
+        "--ports", 
+        "-p", 
+        help="Portas para escanear em cada host."
+    ),
+
+    output_dir: str = typer.Option(
+        "./output", 
+        "--output", 
+        "-o", 
+        help="Diretório para salvar os resultados"
+    ),
 ):
-    result = run_network_map(network, output_dir)
-    typer.echo(f"Resultados salvos em: {result['json_file']} e {result['csv_file']}")
+    typer.echo(f"[+] Iniciando mapeamento da rede {network} nas portas [{ports}]...")
+
+    result = run_network_map(network, ports, output_dir)
+
+    if result and result.get('json_file'):
+        typer.echo(f"Resultados salvos em: {result.get('json_file')} e {result.get('csv_file')}")
 
 @network_app.command("scan", help="Realiza um scan de portas em um host específico")
 def scan(
-    ip: str = typer.Option(..., help="Endereço IP do host. Exemplo: 192.168.0.10")
+    target: str = typer.Option(..., "--target", "-t", help="Alvo do scan (IP ou hostname)"),
+    ports: str = typer.Option("21,22,53,80,443,445,3306,8080", "--ports", "-p", help="Portas para escanear. Ex: '22,80,100-200'")
 ):
-    result = scan_host(ip)
-    print(result)
+    try:
+        ports_to_scan = parse_ports(ports)
+        num_ports = len(ports_to_scan)
+
+        if num_ports == 0:
+            print("[yellow]Nenhuma porta especificada para o scan.[/yellow]")
+            raise typer.Exit()
+
+        typer.echo(f"[+] Iniciando scan em {num_ports} porta(s) de {target}...")
+
+        results = []
+        with typer.progressbar(length=num_ports, label="Scanning ports") as progress:
+            def update_progress():
+                progress.update(1)
+
+            results = scan_host(
+                target=target,
+                ports=ports,
+                callback=update_progress
+            )
+
+        table = Table(title=f"Resultados do Scan para {target}")
+        table.add_column("Porta", style="cyan")
+        table.add_column("Protocolo", style="magenta")
+        table.add_column("Status", style="green")
+        table.add_column("Serviço", style="yellow")
+        table.add_column("Banner / Detalhes", style="white", overflow="fold")
+
+        if not results:
+            print(f"[yellow]Nenhuma porta aberta encontrada para '{target}' no range '{ports}'.[/yellow]")
+            return
+
+        for res in results:
+            table.add_row(
+                str(res["port"]),
+                res["protocol"],
+                res["status"],
+                res["service"],
+                res["banner"]
+            )
+        print(table)
+
+    except ValueError as e:
+        print(f"[bold red]Erro: {e}[/bold red]")
 
 @network_app.command("sweep", help="Verifica hosts ativos em um range de IPs via ping")
 def sweep(

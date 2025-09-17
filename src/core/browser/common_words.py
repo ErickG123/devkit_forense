@@ -1,4 +1,3 @@
-# core/browser/words_extractor.py
 import sqlite3
 import shutil
 import tempfile

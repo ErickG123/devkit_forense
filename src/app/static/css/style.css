@@ -1,0 +1,51 @@
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+#left {
+    width: 300px;
+    padding: 12px;
+    border-right: 1px solid #ddd;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+#left .btn {
+    display: inline-block;
+    margin: 6px 4px;
+    padding: 6px 10px;
+    background: #007bff;
+    color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+#left .muted {
+    color: #666;
+    font-size: 0.9em;
+}
+
+#mynetwork {
+    flex: 1;
+    height: 100vh;
+    background: #f7f9fb;
+}
+
+pre {
+    background: #111;
+    color: #cfe;
+    padding: 10px;
+    border-radius: 6px;
+    max-height: 40vh;
+    overflow: auto;
+    white-space: pre-wrap;
+}

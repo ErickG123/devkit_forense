@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Network Map Uploader (Flask)</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <div id="left">
+            <h3>Upload JSON</h3>
+            <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+                <input type="file" name="file" accept=".json" required>
+                <div style="margin-top:8px;">
+                    <button type="submit" class="btn">Upload & Render</button>
+                </div>
+            </form>
+
+            <hr>
+            <div>
+                <label>Layout:</label><br />
+                <button id="btnForce" class="btn">Force</button>
+                <button id="btnHier" class="btn">Hierarchical</button>
+                <button id="btnStar" class="btn">Star</button>
+            </div>
+
+            <hr>
+            <div>
+                <input id="search" placeholder="Buscar IP ou hostname"
+                    style="width:100%; padding:6px; box-sizing:border-box" />
+                <button id="searchBtn" class="btn" style="background:#28a745">Find</button>
+            </div>
+
+            <hr>
+            <div>
+                <a id="exportPNG" class="btn" href="#">Export PNG</a>
+                <a id="exportJSON" class="btn" href="#" target="_blank">Export Data</a>
+            </div>
+
+            <hr>
+            <div>
+                <strong>Details</strong>
+                <div id="details" class="muted">Clique num nó para ver detalhes</div>
+                <pre id="raw">Nenhum nó selecionado.</pre>
+            </div>
+            <hr>
+            <div class="muted">Source: {{ filename or "N/A" }}</div>
+        </div>
+
+        <div id="mynetwork"></div>
+    </div>
+
+    <script id="init-data" type="application/json">
+        {{ {"nodes": nodes_json, "edges": edges_json} | tojson }}
+    </script>
+    <script src="{{ url_for('static', filename='js/network.js') }}"></script>
+</body>
+</html>

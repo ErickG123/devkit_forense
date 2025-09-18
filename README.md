@@ -16,29 +16,41 @@
 
 ---
 
-## 1. Introdução
+# DevKit Forense: Uma Suíte de Ferramentas Educacionais para Análise Forense Digital
 
-**Objetivo:**  
-O DevKit Forense é uma suíte de ferramentas educacionais para análise de evidências digitais, projetada para auxiliar no ensino de perícia digital. Combina **CLI**, **API** e **aplicações de apoio**, tornando o uso mais interativo, visual e didático.  
+## 📖 Introdução
 
-**Escopo:**  
-- Execução de análises forenses em browsers, arquivos, emails e redes.  
-- Visualização interativa de resultados.  
-- Geração de relatórios automáticos.  
-- Assistente interativo (Wizard) para guiar o usuário em tarefas complexas.  
+O estudo da perícia forense digital, embora fascinante, apresenta uma curva de aprendizado íngreme. Ferramentas profissionais são poderosas, mas muitas vezes complexas e pouco intuitivas para estudantes que estão dando os primeiros passos na área.
 
-**Público-alvo:**  
-- Estudantes e professores de Segurança da Informação e Perícia Digital.  
+Para endereçar essa lacuna, o **DevKit Forense** foi desenvolvido como um projeto de TCC. Trata-se de uma suíte de ferramentas projetada desde o início com um **foco educacional**. Nosso objetivo é simplificar a análise de evidências digitais, tornando o processo de aprendizado mais interativo, visual e didático.
+
+Este projeto é destinado a **estudantes e professores da área de Segurança da Informação e Perícia Digital**, servindo como uma ponte entre o conhecimento teórico e a aplicação prática.
 
 ---
 
-## 2. Estrutura do Projeto
+## ✨ Recursos em Destaque
 
-O DevKit está organizado em três camadas principais:
+O DevKit Forense combina o poder da linha de comando com a clareza de interfaces gráficas para oferecer uma experiência de aprendizado completa.
 
-1. **CLI** – Executa os módulos forenses pelo terminal.  
-2. **API** – Interface programática para execução de módulos e integração com dashboards.  
-3. **Core** – Contém a lógica central, classes, funções e utilitários compartilhados pelos módulos.  
+* **🔍 Análise Multifacetada:** Execute módulos de análise forense focados nos artefatos mais comuns do dia a dia digital, incluindo:
+    * Navegadores Web (histórico, cache, downloads)
+    * Clientes de E-mail
+    * Tráfego de Rede (análise de pacotes)
+
+---
+
+## 🏛️ Arquitetura do Projeto
+
+Para garantir modularidade e flexibilidade, o DevKit foi estruturado em três camadas principais, cada uma com um propósito claro:
+
+1.  **`CLI (Command-Line Interface)`**
+    * **O que faz:** É a porta de entrada para a execução direta dos módulos forenses. Ideal para automação de tarefas, scripts e para usuários que preferem a agilidade do terminal.
+
+2.  **`API (Application Programming Interface)`**
+    * **O que faz:** Expõe as funcionalidades do Core de forma programática. Permite que as aplicações de apoio (como dashboards visuais) consumam os dados e executem análises, além de possibilitar a integração do DevKit com outras ferramentas.
+
+3.  **`Core`**
+    * **O que faz:** É o coração do projeto. Contém toda a lógica de negócio, as classes, funções e utilitários de análise. Centralizar a lógica no Core garante que as regras sejam consistentes, o código seja reutilizável e a manutenção seja simplificada, já que tanto a CLI quanto a API consomem desta mesma base.
 
 ---
 

@@ -1,6 +1,8 @@
 # DevKit Forense – Ferramenta Educacional de Perícia Digital
 
-![Python](https://img.shields.io/badge/Python-3.11-blue.svg) ![FastAPI](https://img.shields.io/badge/FastAPI-0.100-green.svg) ![Typer](https://img.shields.io/badge/Typer-0.7-orange.svg) ![SQLite](https://img.shields.io/badge/SQLite-3.41.2-lightgrey.svg)
+![Python](https://img.shields.io/badge/Python-3.11-blue.svg) ![Typer](https://img.shields.io/badge/Typer-0.7-orange.svg) ![SQLite](https://img.shields.io/badge/SQLite-3.41.2-lightgrey.svg)
+
+**ForenseLab** é um toolkit modular de análise forense digital, desenvolvido como um Trabalho de Conclusão de Curso em Engenharia da Computação. Seu principal objetivo é servir como uma ponte educacional para estudantes, educadores e entusiastas da área de segurança da informação.
 
 ## Sumário
 1. [Introdução](#introdução)  
@@ -16,43 +18,31 @@
 
 ---
 
-# DevKit Forense: Uma Suíte de Ferramentas Educacionais para Análise Forense Digital
+## 🎯 O Problema
+O ensino prático de computação forense enfrenta uma barreira significativa. Ferramentas comerciais padrão de mercado, como EnCase e FTK, são robustas, mas possuem um custo proibitivo para ambientes acadêmicos. Por outro lado, alternativas open-source consolidadas, como Autopsy e Volatility Framework, embora poderosas e gratuitas, apresentam uma curva de aprendizado íngreme que pode intimidar e frustrar iniciantes.
 
-## 📖 Introdução
+Essa dualidade cria uma lacuna educacional: falta uma plataforma que permita ao estudante focar na **metodologia investigativa**, sem se perder na complexidade operacional da ferramenta.
 
-O estudo da perícia forense digital, embora fascinante, apresenta uma curva de aprendizado íngreme. Ferramentas profissionais são poderosas, mas muitas vezes complexas e pouco intuitivas para estudantes que estão dando os primeiros passos na área.
+## 💡 A Proposta do ForenseLab
+O **ForenseLab** nasce para preencher essa lacuna, atuando como um "laboratório digital" introdutório. Ele não busca competir em funcionalidades com as suítes profissionais, mas sim oferecer um ambiente controlado, simplificado e didático para a aplicação de conceitos teóricos.
 
-Para endereçar essa lacuna, o **DevKit Forense** foi desenvolvido como um projeto de TCC. Trata-se de uma suíte de ferramentas projetada desde o início com um **foco educacional**. Nosso objetivo é simplificar a análise de evidências digitais, tornando o processo de aprendizado mais interativo, visual e didático.
+Este projeto é destinado a **estudantes e professores da área de Segurança da Informação e Perícia Digital**, servindo como uma ponte entre a teoria e a prática.
 
-Este projeto é destinado a **estudantes e professores da área de Segurança da Informação e Perícia Digital**, servindo como uma ponte entre o conhecimento teórico e a aplicação prática.
+## ✨ Recursos Principais
 
----
-
-## ✨ Recursos em Destaque
-
-O DevKit Forense combina o poder da linha de comando com a clareza de interfaces gráficas para oferecer uma experiência de aprendizado completa.
-
-* **🔍 Análise Multifacetada:** Execute módulos de análise forense focados nos artefatos mais comuns do dia a dia digital, incluindo:
-    * Navegadores Web (histórico, cache, downloads)
-    * Clientes de E-mail
-    * Tráfego de Rede (análise de pacotes)
-
----
+* **💻 Interface de Linha de Comando (CLI) Intuitiva:** Todas as análises são executadas através de uma CLI clara e bem documentada, ideal para automação, scripts e para quem busca agilidade no terminal.
+* **🧩 Arquitetura Modular e Extensível:** O toolkit é organizado em módulos independentes (Navegadores, Rede, E-mails), o que permite que a comunidade adicione facilmente novas capacidades de análise sem alterar o núcleo do sistema.
+* **🎓 Foco Didático:** Ao abstrair complexidades desnecessárias, a ferramenta permite que o aluno se concentre em entender os artefatos digitais e desenvolver o raciocínio investigativo.
 
 ## 🏛️ Arquitetura do Projeto
 
-Para garantir modularidade e flexibilidade, o DevKit foi estruturado em três camadas principais, cada uma com um propósito claro:
+Para garantir a manutenibilidade e a clareza do código, o ForenseLab adota uma arquitetura de duas camadas principais, organizada em um monorepositório:
 
-1.  **`CLI (Command-Line Interface)`**
-    * **O que faz:** É a porta de entrada para a execução direta dos módulos forenses. Ideal para automação de tarefas, scripts e para usuários que preferem a agilidade do terminal.
+1.  **`Core`**
+    * **O que faz:** É o cérebro do projeto. Contém toda a lógica de negócio, as classes de análise forense e as funções utilitárias. Centralizar a lógica no Core garante que as regras sejam consistentes e o código seja reutilizável.
 
-2.  **`API (Application Programming Interface)`**
-    * **O que faz:** Expõe as funcionalidades do Core de forma programática. Permite que as aplicações de apoio (como dashboards visuais) consumam os dados e executem análises, além de possibilitar a integração do DevKit com outras ferramentas.
-
-3.  **`Core`**
-    * **O que faz:** É o coração do projeto. Contém toda a lógica de negócio, as classes, funções e utilitários de análise. Centralizar a lógica no Core garante que as regras sejam consistentes, o código seja reutilizável e a manutenção seja simplificada, já que tanto a CLI quanto a API consomem desta mesma base.
-
----
+2.  **`CLI (Command-Line Interface)`**
+    * **O que faz:** É a interface do usuário e o ponto de entrada para todas as funcionalidades. Construída com Typer, ela invoca a lógica do `Core` para executar as análises e apresentar os resultados de forma estruturada no terminal.
 
 ## 3. Módulos Forenses
 
@@ -86,16 +76,11 @@ Para garantir modularidade e flexibilidade, o DevKit foi estruturado em três ca
 | `email_parser` | Extrai e organiza informações de emails. |
 | `header_analysis` | Analisa cabeçalhos para identificar origem, roteamento e possíveis fraudes. |
 
----
-
 ## 4. Tecnologias Utilizadas
 
-- **Python** – Linguagem principal do projeto.  
-- **FastAPI** – API para integração e execução de módulos.  
-- **Typer** – CLI estruturada e interativa.  
-- **SQLite** – Banco de dados local leve.  
-
----
+* **Python:** Linguagem principal do projeto, escolhida por sua simplicidade e pelo vasto ecossistema de bibliotecas para manipulação de dados.
+* **Typer:** Utilizado para criar a interface de linha de comando (CLI) de forma robusta e intuitiva.
+* **SQLite:** Várias análises, como a de históricos de navegadores, interagem diretamente com bancos de dados SQLite.
 
 ## 5. Planejamento e Futuras Extensões
 
@@ -106,8 +91,6 @@ Para garantir modularidade e flexibilidade, o DevKit foi estruturado em três ca
 | Wizard | Guiar o usuário passo a passo | Templates de análise rápida, integração automática com módulos de email e data, relatórios PDF/HTML |
 | Novos módulos CLI | Expansão da análise forense | Logs de sistemas, recuperação de dispositivos móveis, análise de mídia, detecção de malware, integração com threat intelligence |
 | Ferramentas auxiliares | Suporte a módulos existentes e novos | Exportação avançada de relatórios, dashboards customizáveis, notificações em tempo real |
-
----
 
 ## 6. Instalação
 A forma mais simples de instalar a CLI é utilizando o **PyPI**.  

@@ -37,3 +37,5 @@ dist/
 cli_output
 
 output
+
+.pytest_cache

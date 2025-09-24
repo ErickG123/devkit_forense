@@ -10,14 +10,17 @@ from core.browser.unusual_patterns import processar_historico_da_pasta
 from core.browser.logins import collect_chrome_logins, collect_edge_logins
 from core.browser.common_words import extract_words
 
-browser_app = typer.Typer()
+browser_app = typer.Typer(
+    help="Conjunto de ferramentas para extrair e processar artefatos de navegadores "
+         "(histórico, downloads, logins, favicons/screens e análises de padrões)."
+)
 
-@browser_app.command("history")
+@browser_app.command("history", help="Extrai o histórico dos navegadores especificados (Chrome, Edge, Firefox ou todos).")
 def history(
     chrome: bool = typer.Option(False, "--chrome", help="Extrair histórico do Chrome"),
     edge: bool = typer.Option(False, "--edge", help="Extrair histórico do Edge"),
     firefox: bool = typer.Option(False, "--firefox", help="Extrair histórico do Firefox"),
-    all: bool = typer.Option(False, "--all", help="Extrair histórico de todos navegadores")
+    all: bool = typer.Option(False, "--all", help="Extrair histórico de todos os navegadores")
 ):
     usuario = os.getlogin()
     home = str(Path.home())
@@ -52,7 +55,7 @@ def history(
         else:
             typer.echo("[!] Perfis do Firefox não encontrados.")
 
-@browser_app.command("downloads")
+@browser_app.command("downloads", help="Extrai registros de downloads dos navegadores e salva artefatos no diretório indicado.")
 def downloads(
     output_dir: Path = typer.Option(
         Path("artefatos/downloads"),
@@ -87,7 +90,7 @@ def downloads(
 
     typer.echo("✅ Extração concluída!")
 
-@browser_app.command("favscreen")
+@browser_app.command("favscreen", help="Processa JSONs de histórico, extrai URLs válidas e captura favicons/screenshots.")
 def favscreen(
     input_dir: Path = typer.Option(
         Path("artefatos/historico"),
@@ -130,7 +133,7 @@ def favscreen(
     except Exception as erro:
         typer.echo(f"\n❌ Erro geral: {erro}")
 
-@browser_app.command("logins")
+@browser_app.command("logins", help="Coleta credenciais/entradas de login dos navegadores suportados e grava JSONs com os resultados.")
 def logins(
     chrome: bool = typer.Option(False, "--chrome", help="Extrair logins do Chrome"),
     edge: bool = typer.Option(False, "--edge", help="Extrair logins do Edge"),
@@ -169,7 +172,7 @@ def logins(
             json.dump(data_edge, f, indent=2, ensure_ascii=False)
         typer.echo(f"✅ Logins do Edge salvos em: {arquivo_edge}")
 
-@browser_app.command("patterns")
+@browser_app.command("patterns", help="Analisa históricos para identificar padrões incomuns e gera gráficos/relatórios na pasta de saída.")
 def patterns(
     input_dir: Path = typer.Option(
         Path("artefatos/historico"),
@@ -204,7 +207,7 @@ def patterns(
     except Exception as erro:
         typer.echo(f"\n❌ Erro ao executar patterns: {erro}")
 
-@browser_app.command("words")
+@browser_app.command("words", help="Extrai palavras/termos mais frequentes do histórico (ex.: pesquisas) e salva um JSON com os resultados.")
 def words(
     chrome: bool = typer.Option(True, "--chrome", help="Extrair palavras mais pesquisadas do Chrome"),
     output_dir: Path = typer.Option(

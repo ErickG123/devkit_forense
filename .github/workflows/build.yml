@@ -102,13 +102,13 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
-        run: twine upload --repository testpypi dist/pypi/* --verbose
+        run: twine upload --repository testpypi dist/pypi/* --verbose --skip-existing
 
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: twine upload --repository pypi dist/pypi/* --verbose
+        run: twine upload --repository pypi dist/pypi/* --verbose --skip-existing
 
   create-release:
     needs: [bump-version, build-windows, deploy-pypi]

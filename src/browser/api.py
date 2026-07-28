@@ -1,39 +1,23 @@
-"""
-API Router da feature Browser.
-
-Expõe endpoints REST para extração de artefatos de navegadores.
-Os endpoints de extração são operações de longa duração — em produção
-considere movê-los para tarefas assíncronas (ex: Celery/BackgroundTasks).
-"""
-
 from fastapi import APIRouter
 
+from browser.schemas import BrowserHistoryRequest, BrowserHistoryResponse
 from shared.logger import get_logger
 
 logger = get_logger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/api/browser", tags=["Browser"])
 
 
-# ---------------------------------------------------------------------------
-# Health-check da feature
-# ---------------------------------------------------------------------------
-
-
-@router.get(
-    "/health",
-    summary="Browser Feature Health-check",
-    description="Confirma que o módulo de análise de navegadores está disponível.",
-)
-def browser_health():
-    return {
-        "feature": "browser",
-        "status": "online",
-        "endpoints_available": [
-            "GET  /browser/health",
-        ],
-        "note": (
-            "Os endpoints de extração (history, downloads, logins) operam sobre "
-            "o sistema de arquivos local e serão expostos em versões futuras da API."
-        ),
-    }
+@router.post("/history", response_model=BrowserHistoryResponse)
+def get_history(request: BrowserHistoryRequest):
+    logger.info(
+        "API /history chamada para navegador: %s com limite: %s", request.browser, request.limit
+    )
+    # Mock seguro simulando processamento
+    result_data = [
+        {"url": "https://example.com", "title": "Example", "visit_count": 10},
+        {"url": "https://google.com", "title": "Google", "visit_count": 5},
+    ]
+    if request.limit:
+        result_data = result_data[: request.limit]
+    return BrowserHistoryResponse(status="success", data=result_data)

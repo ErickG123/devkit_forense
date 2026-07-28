@@ -15,13 +15,14 @@ from network.dns_recon import dns_recon
 from network.ip_info import ip_info_lookup
 from network.ping_sweep import parse_network, ping_host
 from network.port_scanner import scan_host
+from network.schemas import NetworkScanRequest, NetworkScanResponse
 from network.traceroute import traceroute_host
 from shared.config import get as cfg_get
 from shared.logger import get_logger
 
 logger = get_logger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/api/network", tags=["Network"])
 
 _DEFAULT_PORTS = cfg_get("network", "default_ports", default="21,22,53,80,443,445,3306,8080")
 
@@ -29,15 +30,6 @@ _DEFAULT_PORTS = cfg_get("network", "default_ports", default="21,22,53,80,443,44
 # ---------------------------------------------------------------------------
 # Modelos Pydantic (contratos de entrada)
 # ---------------------------------------------------------------------------
-
-
-class ScanRequest(BaseModel):
-    target: str = Field(..., examples=["192.168.1.1"], description="IP ou hostname do alvo")
-    ports: str = Field(
-        default=_DEFAULT_PORTS,
-        examples=["22,80,443"],
-        description="Portas a escanear. Ex: '22,80,100-200'",
-    )
 
 
 class SweepRequest(BaseModel):
@@ -66,13 +58,15 @@ class TracerouteRequest(BaseModel):
     "/scan",
     summary="Port Scan",
     description="Realiza um scan de portas TCP em um host e retorna as portas abertas com serviços e banners.",
+    response_model=NetworkScanResponse,
 )
-def run_port_scan(request: ScanRequest):
-    logger.info("API /scan — alvo: %s | portas: %s", request.target, request.ports)
+def run_port_scan(request: NetworkScanRequest):
+    logger.info("API /scan — alvo: %s | portas (list): %s", request.target, request.ports)
     try:
-        results = scan_host(target=request.target, ports=request.ports)
+        ports_str = ",".join(map(str, request.ports)) if request.ports else _DEFAULT_PORTS
+        results = scan_host(target=request.target, ports=ports_str)
         logger.info("API /scan concluído — %d resultado(s).", len(results))
-        return {"target": request.target, "status": "success", "data": results}
+        return NetworkScanResponse(target=request.target, status="success", data=results)
     except Exception as exc:
         logger.exception("Erro em /scan para '%s'.", request.target)
         raise HTTPException(status_code=500, detail=str(exc))

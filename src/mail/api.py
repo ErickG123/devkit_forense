@@ -1,37 +1,19 @@
-"""
-API Router da feature Email.
-
-Expõe endpoints REST para análise forense de e-mails.
-"""
-
 from fastapi import APIRouter
 
+from mail.schemas import MailAnalysisRequest, MailAnalysisResponse
 from shared.logger import get_logger
 
 logger = get_logger(__name__)
 
-router = APIRouter()
+router = APIRouter(prefix="/api/mail", tags=["Mail"])
 
 
-# ---------------------------------------------------------------------------
-# Health-check da feature
-# ---------------------------------------------------------------------------
-
-
-@router.get(
-    "/health",
-    summary="Email Feature Health-check",
-    description="Confirma que o módulo de análise de e-mails está disponível.",
-)
-def email_health():
-    return {
-        "feature": "email",
-        "status": "online",
-        "endpoints_available": [
-            "GET  /email/health",
-        ],
-        "note": (
-            "Os endpoints de parsing (.eml) e análise de cabeçalhos serão "
-            "expostos em versões futuras da API REST."
-        ),
+@router.post("/analyze", response_model=MailAnalysisResponse)
+def analyze_mail(request: MailAnalysisRequest):
+    logger.info("API /analyze chamada para: %s", request.file_path)
+    # Mock seguro simulando processamento
+    result_data = {
+        "headers": {"subject": "Mock Subject", "from": "test@example.com"},
+        "body": "Mock body content",
     }
+    return MailAnalysisResponse(status="success", data=result_data)

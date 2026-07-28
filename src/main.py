@@ -9,7 +9,7 @@ Este módulo serve DOIS propósitos conforme o modo de execução:
 
   2. API REST (FastAPI + Uvicorn) — quando invocado com --api:
         python src/main.py --api
-        uvicorn main:api_app --reload (a partir de src/)
+        uvicorn main:app --reload (a partir de src/)
 
 A separação é feita por argumento de linha de comando, mantendo
 ambas as interfaces no mesmo entrypoint sem acoplamento entre elas.
@@ -18,20 +18,20 @@ ambas as interfaces no mesmo entrypoint sem acoplamento entre elas.
 import sys
 
 # ─────────────────────────────────────────────────────────────────────────────
-# FastAPI application — instanciada sempre (necessária para `uvicorn main:api_app`)
+# FastAPI application — instanciada sempre (necessária para `uvicorn main:app`)
 # ─────────────────────────────────────────────────────────────────────────────
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from browser.api import router as browser_router
-from mail.api import router as email_router
+from mail.api import router as mail_router
 from network.api import router as network_router
 from shared.config import get as cfg_get
 from shared.logger import configure_verbose, get_logger
 
 logger = get_logger(__name__)
 
-api_app = FastAPI(
+app = FastAPI(
     title="ForenseLab API",
     description=(
         "API REST do DevKit Forense para análise de evidências digitais.\n\n"
@@ -46,7 +46,7 @@ api_app = FastAPI(
 )
 
 # CORS — permite consumo pelo SPA (restringir `allow_origins` em produção)
-api_app.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
@@ -55,12 +55,12 @@ api_app.add_middleware(
 )
 
 # Registro dos roteadores por feature
-api_app.include_router(network_router, prefix="/api/network", tags=["Network"])
-api_app.include_router(browser_router, prefix="/api/browser", tags=["Browser"])
-api_app.include_router(email_router, prefix="/api/email", tags=["Email"])
+app.include_router(network_router)
+app.include_router(browser_router)
+app.include_router(mail_router)
 
 
-@api_app.get("/", tags=["Root"])
+@app.get("/", tags=["Root"])
 def root():
     return {
         "service": "ForenseLab API",
@@ -148,7 +148,7 @@ if __name__ == "__main__":
         reload = "--reload" in sys.argv
 
         logger.info("Iniciando ForenseLab API em %s:%d (reload=%s)", host, port, reload)
-        uvicorn.run("main:api_app", host=host, port=port, reload=reload)
+        uvicorn.run("main:app", host=host, port=port, reload=reload)
     else:
         cli = _build_cli()
         cli()

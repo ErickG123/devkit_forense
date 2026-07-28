@@ -10,78 +10,10 @@ permissions:
   contents: write
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: |
-          python -m venv venv
-          .\venv\Scripts\activate
-          pip install --upgrade pip
-          pip install pyinstaller
-          pip install -e .
-
-      - name: Build executable
-        run: |
-          .\venv\Scripts\activate
-          pyinstaller --onefile --name forensic-cli --console --add-data "src/network;network" --add-data "src/browser;browser" --add-data "src/email;email" --add-data "src/shared;shared" --add-data "src/api;api" src/main.py
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: forensic-cli-exe
-          path: dist/forensic-cli.exe
-
-  deploy-pypi:
-    needs: build-windows
+  bump-version:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-
-      - name: Install build tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
-
-      - name: Build Python package
-        run: python -m build --outdir dist/pypi
-
-      - name: Publish to TestPyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
-        run: twine upload --repository testpypi dist/pypi/* --verbose
-
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: twine upload --repository pypi dist/pypi/* --verbose
-
-  release:
-    needs: [build-windows, deploy-pypi]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
+    outputs:
+      new_tag: ${{ steps.get_tag.outputs.new_tag }}
     steps:
       - name: Checkout code with full history
         uses: actions/checkout@v4
@@ -111,34 +43,98 @@ jobs:
         id: get_tag
         run: echo "new_tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
+  build-windows:
+    needs: bump-version
+    runs-on: windows-latest
+    steps:
+      - name: Checkout bumped code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new_tag }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          .\venv\Scripts\activate
+          pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt || pip install .
+
+      - name: Build executable
+        run: |
+          .\venv\Scripts\activate
+          pyinstaller --onefile --name forensic-cli --console src/main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: forensic-cli-exe
+          path: dist/forensic-cli.exe
+
+  deploy-pypi:
+    needs: bump-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout bumped code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new_tag }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build Python package
+        run: python -m build --outdir dist/pypi
+
+      - name: Publish to TestPyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TESTPYPI_TOKEN }}
+        run: twine upload --repository testpypi dist/pypi/* --verbose
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: twine upload --repository pypi dist/pypi/* --verbose
+
+  create-release:
+    needs: [bump-version, build-windows, deploy-pypi]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout bumped code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.new_tag }}
+
       - name: Download built artifact
         uses: actions/download-artifact@v4
         with:
           name: forensic-cli-exe
           path: ./dist/exe
 
-      - name: Check if release exists
-        id: check_release
-        run: |
-          if gh release view ${{ steps.get_tag.outputs.new_tag }} > /dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-          fi
+      - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create release if not exists
-        if: steps.check_release.outputs.exists == 'false'
         run: |
-          gh release create ${{ steps.get_tag.outputs.new_tag }} ./dist/exe/forensic-cli.exe \
-            --title "Forensic CLI ${{ steps.get_tag.outputs.new_tag }}" \
-            --notes "Automated release from main branch merge. Commit: ${{ github.sha }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh release create ${{ needs.bump-version.outputs.new_tag }} ./dist/exe/forensic-cli.exe \
+            --title "Forensic CLI ${{ needs.bump-version.outputs.new_tag }}" \
+            --notes-file CHANGELOG.md
 
       - name: Generate index.html for GitHub Pages
-        run: python docs/generate_index.py
+        run: python docs/generate_index.py || echo "Página index ignorada"
 
       - name: Deploy GitHub Pages (Docs + Changelog)
         uses: peaceiris/actions-gh-pages@v3.9.2

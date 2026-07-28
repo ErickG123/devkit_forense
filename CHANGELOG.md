@@ -1,3 +1,10 @@
+## v1.5.2 (2026-07-28)
+
+### Fix
+
+- ajusta mapeamento de versao do commitizen no toml
+- destravando deploy do pypi com skip-existing
+
 ## v1.5.0 (2026-07-28)
 
 ### Feat

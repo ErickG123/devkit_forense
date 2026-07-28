@@ -123,7 +123,7 @@ pythonpath = ["src"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.4.6"
+version = "1.5.0"
 version_files = [
     "pyproject.toml:project.version",
     "src/shared/__init__.py:__version__"

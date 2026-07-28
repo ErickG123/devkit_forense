@@ -1,3 +1,9 @@
+## v1.5.3 (2026-07-28)
+
+### Fix
+
+- atualiza infraestrutura de CI para os testes
+
 ## v1.5.2 (2026-07-28)
 
 ### Fix

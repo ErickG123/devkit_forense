@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "forensic-cli"
-version = "1.4.6"
+version = "1.5.1"
 description = "DevKit Forense - CLI para análise de navegadores e rede"
 readme = "README.md"
 license = {text = "MIT"}
@@ -123,9 +123,9 @@ pythonpath = ["src"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.5.0"
+version = "1.5.1"
 version_files = [
-    "pyproject.toml:project.version",
+    "pyproject.toml:version",
     "src/shared/__init__.py:__version__"
 ]
 tag_format = "v$version"

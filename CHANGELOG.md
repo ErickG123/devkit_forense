@@ -1,3 +1,9 @@
+## v1.5.1 (2026-07-28)
+
+### Fix
+
+- destravando deploy do pypi com skip-existing
+
 ## v1.5.0 (2026-07-28)
 
 ### Feat

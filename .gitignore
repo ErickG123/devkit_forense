@@ -39,3 +39,5 @@ cli_output
 output
 
 .pytest_cache
+
+.ruff_cache/

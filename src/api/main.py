@@ -1,27 +1,29 @@
-from core.db.db import engine, Base
-from api.routers import modules, functionalities, results, reports, executions
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+from api.routers import network
 
-app = FastAPI(title="DevKit Forense API")
+app = FastAPI(
+    title="ForenseLab API",
+    description="API REST do DevKit Forense para análise de evidências digitais.",
+    version="1.0.0",
+)
 
-origins = [
-    "*"
-]
-
+# Configuração de CORS para permitir consumo pelo Dashboard SPA
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Em produção, restringir para o domínio da Vercel
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(modules.router)
-app.include_router(functionalities.router)
-app.include_router(results.router)
-app.include_router(reports.router)
-app.include_router(executions.router)
+# Registro dos Roteadores baseados em features
+app.include_router(network.router, prefix="/api/network", tags=["Network"])
+# app.include_router(browser.router, prefix="/api/browser", tags=["Browser"])
+# app.include_router(email.router, prefix="/api/email", tags=["Email"])
+
+
+@app.get("/")
+def root():
+    return {"message": "ForenseLab API está online e operante!"}

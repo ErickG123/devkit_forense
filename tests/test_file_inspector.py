@@ -1,17 +1,25 @@
-import unittest
 import os
 import tempfile
 
-class TestFileInspector(unittest.TestCase):
-
-    def setUp(self):
-        self.test_file = tempfile.NamedTemporaryFile(delete=False)
-        self.test_file.write(b"Conteudo de teste para hash.")
-        self.test_file.close()
-
-    def tearDown(self):
-        os.unlink(self.test_file.name)
+import pytest
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.fixture
+def sample_file():
+    # Setup
+    temp = tempfile.NamedTemporaryFile(delete=False)
+    temp.write(b"Conteudo de teste para hash.")
+    temp.close()
+
+    yield temp.name
+
+    # Teardown
+    if os.path.exists(temp.name):
+        os.unlink(temp.name)
+
+
+def test_file_inspector_content(sample_file):
+    assert os.path.exists(sample_file)
+    with open(sample_file, "rb") as f:
+        content = f.read()
+    assert content == b"Conteudo de teste para hash."

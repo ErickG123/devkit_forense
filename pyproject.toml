@@ -13,7 +13,6 @@ authors = [
 ]
 requires-python = ">=3.11"
 keywords = ["forensics", "cli", "network", "browser"]
-
 dependencies = [
     "altgraph==0.17.4",
     "annotated-types==0.7.0",
@@ -91,14 +90,44 @@ dependencies = [
     "yarg==0.1.10"
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["cli*", "core*"]
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.3.0"
+]
 
 [project.scripts]
-forensic-cli = "cli.main:app"
+forensic-cli = "main:_build_cli"
 
 [project.urls]
 Changelog = "https://erickg123.github.io/devkit_forense/"
 Source = "https://github.com/ErickG123/devkit_forense"
 Issues = "https://github.com/ErickG123/devkit_forense/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["network*", "browser*", "email*", "shared*", "api*", "app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Habilita checagens de Erros, Funções, Isort (ordenação de imports) e Warnings
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "1.4.6"
+version_files = [
+    "pyproject.toml:project.version",
+    "src/shared/__init__.py:__version__"
+]
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_incremental = true

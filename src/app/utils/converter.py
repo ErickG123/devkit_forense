@@ -1,6 +1,7 @@
-import json
-import ipaddress
 import html
+import ipaddress
+import json
+
 
 def is_ip(addr: str) -> bool:
     try:
@@ -8,6 +9,7 @@ def is_ip(addr: str) -> bool:
         return True
     except Exception:
         return False
+
 
 def convert_hosts_to_graph(hosts):
     nodes = []
@@ -18,14 +20,26 @@ def convert_hosts_to_graph(hosts):
         node_id = str(node_id)
         if node_id in nodes_map:
             return
-        node = {"id": node_id, "label": label or node_id, "title": title or "", "group": group, "value": value}
+        node = {
+            "id": node_id,
+            "label": label or node_id,
+            "title": title or "",
+            "group": group,
+            "value": value,
+        }
         if raw:
             node["raw"] = raw
         nodes.append(node)
         nodes_map[node_id] = node
 
     for item in hosts:
-        ip = item.get("host") or item.get("ip") or item.get("address") or item.get("ipv4") or item.get("ip_address")
+        ip = (
+            item.get("host")
+            or item.get("ip")
+            or item.get("address")
+            or item.get("ipv4")
+            or item.get("ip_address")
+        )
         if not ip:
             tr = item.get("traceroute") or item.get("trace") or item.get("hops")
             if isinstance(tr, list) and tr:
@@ -51,10 +65,14 @@ def convert_hosts_to_graph(hosts):
         ip_info = item.get("ip_info") or {}
 
         details = [f"IP: {html.escape(ip)}"]
-        if hostname: details.append(f"Hostname: {html.escape(str(hostname))}")
-        if mac: details.append(f"MAC: {html.escape(str(mac))}")
-        if vendor: details.append(f"Vendor: {html.escape(str(vendor))}")
-        if os_name: details.append(f"OS: {html.escape(str(os_name))}")
+        if hostname:
+            details.append(f"Hostname: {html.escape(str(hostname))}")
+        if mac:
+            details.append(f"MAC: {html.escape(str(mac))}")
+        if vendor:
+            details.append(f"Vendor: {html.escape(str(vendor))}")
+        if os_name:
+            details.append(f"OS: {html.escape(str(os_name))}")
         if isinstance(open_ports, list) and open_ports:
             ports_summary = ", ".join(str(p) for p in open_ports[:8])
             details.append(f"Open ports: {html.escape(ports_summary)} ({len(open_ports)})")
@@ -82,7 +100,9 @@ def convert_hosts_to_graph(hosts):
             else:
                 group = "other"
 
-        add_node(ip, label=hostname or ip, title=html_title, group=group, value=size, raw=pretty_json)
+        add_node(
+            ip, label=hostname or ip, title=html_title, group=group, value=size, raw=pretty_json
+        )
 
         traceroute = item.get("traceroute") or item.get("trace") or []
         if isinstance(traceroute, list) and traceroute:
@@ -90,14 +110,22 @@ def convert_hosts_to_graph(hosts):
             for hop in traceroute:
                 hop_ip = None
                 if isinstance(hop, dict):
-                    hop_ip = hop.get("ip") or hop.get("addr") or hop.get("address") or hop.get("host")
+                    hop_ip = (
+                        hop.get("ip") or hop.get("addr") or hop.get("address") or hop.get("host")
+                    )
                 elif isinstance(hop, str):
                     hop_ip = hop
                 if not hop_ip:
                     continue
                 hop_ip = str(hop_ip)
                 if is_ip(hop_ip):
-                    add_node(hop_ip, label=hop_ip, title=f"Hop: {html.escape(hop_ip)}", group="hop", value=10)
+                    add_node(
+                        hop_ip,
+                        label=hop_ip,
+                        title=f"Hop: {html.escape(hop_ip)}",
+                        group="hop",
+                        value=10,
+                    )
                     if prev and is_ip(prev):
                         edges.append({"from": prev, "to": hop_ip})
                     prev = hop_ip

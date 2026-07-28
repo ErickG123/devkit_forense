@@ -1,0 +1,37 @@
+# ============================================================
+# ForenseLab — Arquivo de Configuração Principal
+# ============================================================
+# Edite este arquivo para personalizar o comportamento padrão
+# de todos os comandos da CLI e da API.
+# Documentação: https://github.com/ErickG123/devkit_forense
+# ============================================================
+
+[network]
+# Portas verificadas por padrão no comando `scan` e `map`
+default_ports = "21,22,53,80,443,445,3306,8080"
+
+# Timeout em segundos para conexões de rede (port scan, ping, etc.)
+timeout = 5.0
+
+# Range de portas máximo permitido para scans abertos
+max_port_range = 1024
+
+[browser]
+# Diretório padrão para artefatos de navegadores
+default_output_dir = "./artefatos/historico"
+
+[export]
+# Diretório raiz onde todos os artefatos exportados serão salvos
+default_dir = "./artefatos"
+
+# Formato de exportação padrão quando não especificado via --export
+# Valores aceitos: "json", "csv"
+default_format = "json"
+
+[logging]
+# Nível de log gravado no arquivo forenselab.log
+# Valores: DEBUG, INFO, WARNING, ERROR, CRITICAL
+file_level = "WARNING"
+
+# Caminho do arquivo de log (relativo à raiz do projeto)
+log_file = "forenselab.log"

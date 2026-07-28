@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def generate_index():
     docs_dir = Path("docs")
     changelog_dir = docs_dir / "changelog"
@@ -57,6 +58,7 @@ def generate_index():
     index_path = docs_dir / "index.html"
     index_path.write_text(html_content, encoding="utf-8")
     print(f"index.html gerado com {len(changelog_files)} links de changelog.")
+
 
 if __name__ == "__main__":
     generate_index()

@@ -1,33 +1,37 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
-from sqlalchemy.orm import Session
-from pathlib import Path
-from datetime import datetime
 import json
 import os
+from datetime import datetime
+from pathlib import Path
 
-import core.models.orm as orm
-import core.models.schemas as schemas
-from core.db.db import SessionLocal
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+import shared.orm as orm
+import shared.schemas as schemas
 from api.utils.db import get_db
-from core.registry import FUNCTIONALITIES
+from shared.db import SessionLocal
+from shared.registry import FUNCTIONALITIES
 
 router = APIRouter(prefix="/functionalities", tags=["Functionalities"])
+
 
 @router.post("/", response_model=schemas.Functionality)
 def create_functionality(functionality: schemas.FunctionalityCreate, db: Session = Depends(get_db)):
     db_func = orm.Functionality(
         name=functionality.name,
         description=functionality.description,
-        module_id=functionality.module_id
+        module_id=functionality.module_id,
     )
     db.add(db_func)
     db.commit()
     db.refresh(db_func)
     return db_func
 
+
 @router.get("/", response_model=list[schemas.Functionality])
 def get_functionalities(db: Session = Depends(get_db)):
     return db.query(orm.Functionality).all()
+
 
 @router.get("/{func_id}/results", response_model=list[schemas.Result])
 def get_results_by_functionality(func_id: str, db: Session = Depends(get_db)):
@@ -45,7 +49,7 @@ def run_functionality(
     network: str = None,
     background_tasks: BackgroundTasks = None,
     usuario: str = "Usuário Anônimo",
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     func_obj = db.query(orm.Functionality).filter(orm.Functionality.id == func_id).first()
     if not func_obj:
@@ -72,7 +76,7 @@ def run_functionality(
                 functionality_id=func_obj.id,
                 network=network or "N/A",
                 status="started",
-                started_at=datetime.utcnow()
+                started_at=datetime.utcnow(),
             )
             db_session.add(execution)
             db_session.commit()
@@ -81,7 +85,7 @@ def run_functionality(
             result = orm.Result(
                 execution_id=execution.id,
                 data=json.dumps(result_data, ensure_ascii=False),
-                created_at=datetime.utcnow()
+                created_at=datetime.utcnow(),
             )
             db_session.add(result)
             db_session.commit()

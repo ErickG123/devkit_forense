@@ -30,12 +30,12 @@ jobs:
           .\venv\Scripts\activate
           pip install --upgrade pip
           pip install pyinstaller
-          pip install -r requirements.txt
+          pip install -e .
 
       - name: Build executable
         run: |
           .\venv\Scripts\activate
-          pyinstaller --onefile --name forensic-cli --console --add-data "src/core;core" --add-data "src/api;api" src/cli/main.py
+          pyinstaller --onefile --name forensic-cli --console --add-data "src/network;network" --add-data "src/browser;browser" --add-data "src/email;email" --add-data "src/shared;shared" --add-data "src/api;api" src/main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -88,55 +88,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get latest tag and increment version based on commits
-        id: get_tag
-        run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
 
-          if [ -z "$LATEST_TAG" ]; then
-              NEW_MAJOR=0
-              NEW_MINOR=0
-              NEW_PATCH=1
-              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
-          else
-              VERSION=${LATEST_TAG#v}
-              IFS='.' read -ra VERSION_PARTS <<< "$VERSION"
-              MAJOR=${VERSION_PARTS[0]:-0}
-              MINOR=${VERSION_PARTS[1]:-0}
-              PATCH=${VERSION_PARTS[2]:-0}
-
-              COMMITS=$(git log $LATEST_TAG..HEAD --pretty=%B)
-
-              if echo "$COMMITS" | grep -q "\[major\]"; then
-                  NEW_MAJOR=$((MAJOR + 1))
-                  NEW_MINOR=0
-                  NEW_PATCH=0
-              elif echo "$COMMITS" | grep -q "\[minor\]"; then
-                  NEW_MAJOR=$MAJOR
-                  NEW_MINOR=$((MINOR + 1))
-                  NEW_PATCH=0
-              else
-                  NEW_MAJOR=$MAJOR
-                  NEW_MINOR=$MINOR
-                  NEW_PATCH=$((PATCH + 1))
-              fi
-
-              NEW_TAG="v$NEW_MAJOR.$NEW_MINOR.$NEW_PATCH"
-          fi
-
-          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
-
-      - name: Create and push tag if not exists
+      - name: Configure Git
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
 
-          if git rev-parse "refs/tags/${{ steps.get_tag.outputs.new_tag }}" >/dev/null 2>&1; then
-            echo "Tag ${{ steps.get_tag.outputs.new_tag }} already exists. Skipping creation."
-          else
-            git tag ${{ steps.get_tag.outputs.new_tag }}
-            git push origin ${{ steps.get_tag.outputs.new_tag }}
-          fi
+      - name: Install Commitizen
+        run: pip install commitizen
+
+      - name: Bump Version and Generate Changelog
+        run: cz bump --yes
+
+      - name: Push changes and tags
+        run: git push origin main --tags
+
+      - name: Get current tag
+        id: get_tag
+        run: echo "new_tag=$(git describe --tags --abbrev=0)" >> $GITHUB_OUTPUT
 
       - name: Download built artifact
         uses: actions/download-artifact@v4
@@ -147,7 +120,7 @@ jobs:
       - name: Check if release exists
         id: check_release
         run: |
-          if gh release view ${{ steps.get_tag.outputs.new_tag }} >/dev/null 2>&1; then
+          if gh release view ${{ steps.get_tag.outputs.new_tag }} > /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -163,11 +136,6 @@ jobs:
             --notes "Automated release from main branch merge. Commit: ${{ github.sha }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Generate Changelog
-        run: |
-          python docs/generate_changelog.py
-          cat README.md CHANGELOG.md > README_WITH_CHANGELOG.md
 
       - name: Generate index.html for GitHub Pages
         run: python docs/generate_index.py

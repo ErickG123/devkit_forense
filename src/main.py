@@ -1,0 +1,155 @@
+"""
+Entrypoint dual do ForenseLab.
+
+Este módulo serve DOIS propósitos conforme o modo de execução:
+
+  1. CLI (Typer) — quando invocado diretamente:
+        python src/main.py
+        forensic-cli network scan --target 192.168.1.1
+
+  2. API REST (FastAPI + Uvicorn) — quando invocado com --api:
+        python src/main.py --api
+        uvicorn main:api_app --reload (a partir de src/)
+
+A separação é feita por argumento de linha de comando, mantendo
+ambas as interfaces no mesmo entrypoint sem acoplamento entre elas.
+"""
+
+import sys
+from email.api import router as email_router
+
+# ─────────────────────────────────────────────────────────────────────────────
+# FastAPI application — instanciada sempre (necessária para `uvicorn main:api_app`)
+# ─────────────────────────────────────────────────────────────────────────────
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from browser.api import router as browser_router
+from network.api import router as network_router
+from shared.config import get as cfg_get
+from shared.logger import configure_verbose, get_logger
+
+logger = get_logger(__name__)
+
+api_app = FastAPI(
+    title="ForenseLab API",
+    description=(
+        "API REST do DevKit Forense para análise de evidências digitais.\n\n"
+        "Cada grupo de endpoints corresponde a uma feature vertical do projeto:\n"
+        "- **/network** — Port scan, ping sweep, DNS recon, traceroute, IP info\n"
+        "- **/browser** — Extração de artefatos de navegadores (em breve)\n"
+        "- **/email**   — Análise forense de e-mails (em breve)\n"
+    ),
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# CORS — permite consumo pelo SPA (restringir `allow_origins` em produção)
+api_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Registro dos roteadores por feature
+api_app.include_router(network_router, prefix="/api/network", tags=["Network"])
+api_app.include_router(browser_router, prefix="/api/browser", tags=["Browser"])
+api_app.include_router(email_router, prefix="/api/email", tags=["Email"])
+
+
+@api_app.get("/", tags=["Root"])
+def root():
+    return {
+        "service": "ForenseLab API",
+        "status": "online",
+        "docs": "/docs",
+        "redoc": "/redoc",
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CLI application (Typer) — instanciada apenas quando necessário
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _build_cli():
+    """Constrói e retorna o app Typer. Importações pesadas ficam lazy."""
+    from email.cli import email_app
+
+    import typer
+
+    from browser.cli import browser_app
+    from network.cli import network_app
+    from shared.describe import describe_app
+    from shared.utils_cmd import utils_app
+
+    cli = typer.Typer(
+        name="forensic-cli",
+        help=(
+            "ForenseLab — DevKit Forense para análise de evidências digitais.\n\n"
+            "Use [bold]--verbose[/bold] / [bold]-v[/bold] para habilitar o modo de "
+            "rastreamento completo (DEBUG) no terminal.\n\n"
+            "Use [bold]--api[/bold] para subir o servidor REST via Uvicorn."
+        ),
+        rich_markup_mode="rich",
+    )
+
+    @cli.callback()
+    def global_options(
+        verbose: bool = typer.Option(
+            False,
+            "--verbose",
+            "-v",
+            help=(
+                "Habilita o modo verbose: exibe logs de DEBUG no terminal. "
+                "Por padrão apenas WARNING/ERROR são gravados em [italic]forenselab.log[/italic]."
+            ),
+            is_eager=False,
+        ),
+    ) -> None:
+        """Opções globais — executadas antes de qualquer sub-comando."""
+        configure_verbose(verbose)
+
+    cli.add_typer(network_app, name="network", help="Ferramentas para análise e operações em redes")
+    cli.add_typer(
+        browser_app,
+        name="browser",
+        help="Ferramentas para coleta e análise de dados de navegadores",
+    )
+    cli.add_typer(
+        email_app,
+        name="email",
+        help="Ferramentas para análise e manipulação de dados de e-mail",
+    )
+    cli.add_typer(utils_app, name="utils", help="Funções utilitárias de apoio ao sistema")
+    cli.add_typer(
+        describe_app,
+        name="describe",
+        help="Explicações detalhadas sobre as funcionalidades disponíveis",
+    )
+
+    return cli
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Entrypoint
+# ─────────────────────────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    if "--api" in sys.argv:
+        # Remove o argumento para que o Uvicorn não o receba
+        sys.argv.remove("--api")
+        import uvicorn
+
+        host = cfg_get("api", "host", default="0.0.0.0")
+        port = int(cfg_get("api", "port", default=8000))
+        reload = "--reload" in sys.argv
+
+        logger.info("Iniciando ForenseLab API em %s:%d (reload=%s)", host, port, reload)
+        uvicorn.run("main:api_app", host=host, port=port, reload=reload)
+    else:
+        cli = _build_cli()
+        cli()

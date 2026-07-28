@@ -1,11 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
-from api.utils.db import get_db
-import core.models.orm as orm
-from core.models.schemas import ExecutionCreateSchema, ExecutionSchema
 from datetime import datetime
 
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+import shared.orm as orm
+from api.utils.db import get_db
+from shared.schemas import ExecutionCreateSchema, ExecutionSchema
+
 router = APIRouter(prefix="/executions", tags=["Executions"])
+
 
 @router.post("/start", response_model=ExecutionSchema)
 def start_execution(payload: ExecutionCreateSchema, db: Session = Depends(get_db)):
@@ -17,7 +20,7 @@ def start_execution(payload: ExecutionCreateSchema, db: Session = Depends(get_db
         functionality_id=func.id,
         network=payload.network,
         status="started",
-        cli_version=payload.cli_version
+        cli_version=payload.cli_version,
     )
     db.add(execution)
     db.commit()
@@ -25,13 +28,18 @@ def start_execution(payload: ExecutionCreateSchema, db: Session = Depends(get_db
 
     return execution
 
+
 @router.post("/finish", response_model=ExecutionSchema)
 def finish_execution(payload: ExecutionCreateSchema, db: Session = Depends(get_db)):
-    execution = db.query(orm.Execution).filter(
-        orm.Execution.functionality_id == payload.func_id,
-        orm.Execution.network == payload.network,
-        orm.Execution.status == "started"
-    ).first()
+    execution = (
+        db.query(orm.Execution)
+        .filter(
+            orm.Execution.functionality_id == payload.func_id,
+            orm.Execution.network == payload.network,
+            orm.Execution.status == "started",
+        )
+        .first()
+    )
 
     if not execution:
         raise HTTPException(status_code=404, detail="Execução não encontrada")

@@ -57,18 +57,21 @@ jobs:
         with:
           python-version: 3.11
 
+      - name: Install UPX
+        run: choco install upx
+
       - name: Install dependencies
         run: |
           python -m venv venv
           .\venv\Scripts\activate
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install pyinstaller
-          pip install -r requirements.txt || pip install .
+          pip install .
 
       - name: Build executable
         run: |
           .\venv\Scripts\activate
-          pyinstaller --onefile --name forensic-cli --console src/main.py
+          pyinstaller --clean --onefile --name forensic-cli --console --exclude-module pytest --exclude-module ruff --exclude-module commitizen src/main.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

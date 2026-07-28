@@ -16,7 +16,6 @@ ambas as interfaces no mesmo entrypoint sem acoplamento entre elas.
 """
 
 import sys
-from email.api import router as email_router
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FastAPI application — instanciada sempre (necessária para `uvicorn main:api_app`)
@@ -25,6 +24,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from browser.api import router as browser_router
+from mail.api import router as email_router
 from network.api import router as network_router
 from shared.config import get as cfg_get
 from shared.logger import configure_verbose, get_logger
@@ -77,11 +77,10 @@ def root():
 
 def _build_cli():
     """Constrói e retorna o app Typer. Importações pesadas ficam lazy."""
-    from email.cli import email_app
-
     import typer
 
     from browser.cli import browser_app
+    from mail.cli import email_app
     from network.cli import network_app
     from shared.describe import describe_app
     from shared.utils_cmd import utils_app

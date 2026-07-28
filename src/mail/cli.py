@@ -7,14 +7,15 @@ stdlib `email` do Python.
 """
 
 import json
-from email.email_parser import parse_eml_folder
-from email.header_analysis import analyze_email_headers
 from pathlib import Path
 
 import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+
+from mail.email_parser import parse_eml_folder
+from mail.header_analysis import analyze_email_headers
 
 email_app = typer.Typer(help="Ferramentas para análise e manipulação de dados de e-mail")
 console = Console()

@@ -41,3 +41,5 @@ output
 .pytest_cache
 
 .ruff_cache/
+
+attachments

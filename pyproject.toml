@@ -106,7 +106,7 @@ Issues = "https://github.com/ErickG123/devkit_forense/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["network*", "browser*", "email*", "shared*", "api*", "app*"]
+include = ["network*", "browser*", "mail*", "shared*", "api*", "app*"]
 
 [tool.ruff]
 line-length = 100

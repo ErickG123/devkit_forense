@@ -1,3 +1,9 @@
+## v1.6.0 (2026-07-28)
+
+### Feat
+
+- criando endpoints para mail e browser
+
 ## v1.5.3 (2026-07-28)
 
 ### Fix

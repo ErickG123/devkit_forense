@@ -143,12 +143,22 @@ jobs:
           path: ./dist/exe
 
       - name: Create GitHub Release
+        run: |
+          # Captura a tag mais recente
+          TAG=$(git describe --tags --abbrev=0)
+          
+          echo "Verificando se a release $TAG ja existe..."
+          if gh release view "$TAG" &>/dev/null; then
+            echo "A release para $TAG ja existe no repositorio. Pulando a criacao."
+            exit 0
+          else
+            echo "Criando nova release para $TAG..."
+            gh release create "$TAG" ./dist/exe/forensic-cli.exe \
+              --title "Forensic CLI $TAG" \
+              --notes-file CHANGELOG.md
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release create ${{ needs.bump-version.outputs.new_tag }} ./dist/exe/forensic-cli.exe \
-            --title "Forensic CLI ${{ needs.bump-version.outputs.new_tag }}" \
-            --notes-file CHANGELOG.md
 
       - name: Generate index.html for GitHub Pages
         run: python docs/generate_index.py || echo "Index page ignored"

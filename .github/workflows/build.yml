@@ -143,7 +143,7 @@ jobs:
         run: python docs/generate_index.py || echo "Index page ignored"
 
       - name: Deploy GitHub Pages (Docs + Changelog)
-        uses: peaceiris/actions-gh-pages@v3.9.2
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs

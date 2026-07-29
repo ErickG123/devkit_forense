@@ -59,7 +59,7 @@ dependencies = [
     "pydantic_core==2.33.2",
     "pyinstaller==6.15.0",
     "pyinstaller-hooks-contrib==2025.8",
-    "pyparsing==3.2.3",
+    "pyparsing==3.3.2",
     "pysnmp==7.1.21",
     "PySocks==1.7.1",
     "pyspnego==0.11.2",

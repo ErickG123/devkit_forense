@@ -1,3 +1,9 @@
+## v1.7.0 (2026-07-29)
+
+### Feat
+
+- implementação do forenselab-ui
+
 ## v1.6.1 (2026-07-28)
 
 ### Fix

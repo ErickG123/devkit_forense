@@ -7,16 +7,19 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
 
-  # 🅰️ Frontend (Angular/Node)
+  # 🅰️ Frontend (Angular/Node) agrupado
   - package-ecosystem: "npm"
     directory: "/forenselab-ui"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    groups:
+      frontend-dependencies:
+        patterns:
+          - "*" # Pega todos os pacotes do package.json e coloca num PR só
       
   # 🤖 GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10

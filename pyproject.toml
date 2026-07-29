@@ -71,7 +71,7 @@ dependencies = [
     "requests-toolbelt==1.0.0",
     "rfc3986==2.0.0",
     "rich==14.1.0",
-    "scapy==2.6.1",
+    "scapy==2.7.0",
     "selenium==4.35.0",
     "six==1.17.0",
     "smbprotocol==1.15.0",

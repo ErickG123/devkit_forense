@@ -74,7 +74,7 @@ jobs:
           pyinstaller --clean --onefile --name forensic-cli --console --exclude-module pytest --exclude-module ruff --exclude-module commitizen src/main.py
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: forensic-cli-exe
           path: dist/forensic-cli.exe

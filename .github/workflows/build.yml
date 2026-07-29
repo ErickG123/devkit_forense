@@ -15,10 +15,11 @@ jobs:
     outputs:
       new_tag: ${{ steps.get_tag.outputs.new_tag }}
     steps:
-      - name: Checkout code with full history
+      - name: 📥 Baixar o repositório
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.CI_BYPASS_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -34,9 +35,11 @@ jobs:
         run: pip install commitizen
 
       - name: Bump Version and Generate Changelog
+        if: github.event_name == 'push'
         run: cz bump --yes
 
       - name: Push changes and tags
+        if: github.event_name == 'push'
         run: git push origin main --tags
 
       - name: Get current tag

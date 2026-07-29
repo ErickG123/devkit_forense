@@ -65,7 +65,7 @@ dependencies = [
     "pyspnego==0.11.2",
     "python-dateutil==2.9.0.post0",
     "pytz==2025.2",
-    "pywin32==311",
+    "pywin32==312",
     "pywin32-ctypes==0.2.3",
     "requests==2.32.5",
     "requests-toolbelt==1.0.0",

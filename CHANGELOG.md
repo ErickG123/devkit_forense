@@ -1,3 +1,12 @@
+## v1.7.1 (2026-07-29)
+
+### Fix
+
+- **ci**: translate workflow steps to english and remove emojis
+- update .yml de ci
+- alinha a versao do angular cdk com o core na v21
+- documentações de segurança e comunidade
+
 ## v1.7.0 (2026-07-29)
 
 ### Feat

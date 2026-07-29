@@ -53,7 +53,7 @@ dependencies = [
     "pefile==2023.2.7",
     "pillow==11.3.0",
     "pyasn1==0.6.1",
-    "pycparser==2.22",
+    "pycparser==3.0",
     "pycryptodome==3.23.0",
     "pydantic==2.11.7",
     "pydantic_core==2.33.2",

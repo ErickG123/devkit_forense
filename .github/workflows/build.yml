@@ -36,10 +36,20 @@ jobs:
 
       - name: Bump Version and Generate Changelog
         if: github.event_name == 'push'
-        run: cz bump --yes
+        run: |
+          cz bump --yes || EXIT_CODE=$?
+          if [ "$EXIT_CODE" == "21" ]; then
+            echo "Nenhum commit elegivel para bump. Ignorando."
+            echo "BUMP_CREATED=false" >> $GITHUB_ENV
+            exit 0
+          elif [ -n "$EXIT_CODE" ]; then
+            exit $EXIT_CODE
+          else
+            echo "BUMP_CREATED=true" >> $GITHUB_ENV
+          fi
 
       - name: Push changes and tags
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && env.BUMP_CREATED == 'true'
         run: git push origin main --tags
 
       - name: Get current tag

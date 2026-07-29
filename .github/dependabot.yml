@@ -1,0 +1,20 @@
+version: 2
+updates:
+  # 🐍 Scaneia as dependências do Backend (Python) na raiz do projeto
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # 🅰️ Scaneia as dependências do Frontend (Angular/Node) na pasta da UI
+  - package-ecosystem: "npm"
+    directory: "/forenselab-ui"
+    schedule:
+      interval: "weekly"
+      
+  # 🤖 (Opcional) Mantém as Actions do GitHub atualizadas
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      

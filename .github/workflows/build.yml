@@ -39,11 +39,11 @@ jobs:
         if: github.event_name == 'push'
         run: |
           cz bump --yes || EXIT_CODE=$?
-          if [ "$EXIT_CODE" == "21" ]; then
-            echo "Nenhum commit elegivel para bump. Ignorando."
+          if [ "$EXIT_CODE" == "21" ] || [ "$EXIT_CODE" == "3" ]; then
+            echo "Nenhum commit novo ou elegivel para bump (Exit Code $EXIT_CODE). Ignorando."
             echo "BUMP_CREATED=false" >> $GITHUB_ENV
             exit 0
-          elif [ -n "$EXIT_CODE" ]; then
+          elif [ -n "$EXIT_CODE" ] && [ "$EXIT_CODE" != "0" ]; then
             exit $EXIT_CODE
           else
             echo "BUMP_CREATED=true" >> $GITHUB_ENV

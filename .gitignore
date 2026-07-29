@@ -43,3 +43,5 @@ output
 .ruff_cache/
 
 attachments
+
+forenselab.log

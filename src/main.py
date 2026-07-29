@@ -16,18 +16,23 @@ ambas as interfaces no mesmo entrypoint sem acoplamento entre elas.
 """
 
 import sys
+import webbrowser
+
+import uvicorn
 
 # ─────────────────────────────────────────────────────────────────────────────
 # FastAPI application — instanciada sempre (necessária para `uvicorn main:app`)
 # ─────────────────────────────────────────────────────────────────────────────
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from browser.api import router as browser_router
 from mail.api import router as mail_router
 from network.api import router as network_router
 from shared.config import get as cfg_get
 from shared.logger import configure_verbose, get_logger
+from shared.ui_installer import UI_DIR, download_and_install_ui, is_ui_installed
 
 logger = get_logger(__name__)
 
@@ -59,8 +64,11 @@ app.include_router(network_router)
 app.include_router(browser_router)
 app.include_router(mail_router)
 
+if is_ui_installed():
+    app.mount("/", StaticFiles(directory=str(UI_DIR), html=True), name="ui")
 
-@app.get("/", tags=["Root"])
+
+@app.get("/api/health", tags=["Root"])
 def root():
     return {
         "service": "ForenseLab API",
@@ -130,7 +138,19 @@ def _build_cli():
         help="Explicações detalhadas sobre as funcionalidades disponíveis",
     )
 
-    return cli
+    @cli.command(name="gui")
+    def gui():
+        """Inicializa a interface gráfica web e o servidor FastAPI embutido."""
+        if not is_ui_installed():
+            typer.echo("A interface gráfica requer o download de arquivos estáticos.")
+            typer.confirm("Deseja baixar e instalar a interface gráfica agora?", abort=True)
+            download_and_install_ui()
+            app.mount("/", StaticFiles(directory=str(UI_DIR), html=True), name="ui")
+
+        webbrowser.open("http://127.0.0.1:8000")
+        uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+
+    cli()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -150,5 +170,4 @@ if __name__ == "__main__":
         logger.info("Iniciando ForenseLab API em %s:%d (reload=%s)", host, port, reload)
         uvicorn.run("main:app", host=host, port=port, reload=reload)
     else:
-        cli = _build_cli()
-        cli()
+        _build_cli()

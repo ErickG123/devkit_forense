@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300 flex">
+  
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white dark:bg-gray-800 shadow-md flex flex-col justify-between">
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-8">ForenseLab</h1>
+      <nav class="space-y-4">
+        <a href="#" class="block hover:text-indigo-500 transition-colors">Network Scanner</a>
+        <a href="#" class="block hover:text-indigo-500 transition-colors">Browser Forensics</a>
+        <a href="#" class="block hover:text-indigo-500 transition-colors">Mail Analysis</a>
+      </nav>
+    </div>
+    <div class="p-6 border-t border-gray-200 dark:border-gray-700">
+      <!-- O componente ThemeToggle deve vir aqui -->
+      <app-theme-toggle></app-theme-toggle>
+    </div>
+  </aside>
+
+  <!-- Main Content Dashboard -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <header class="mb-8 flex justify-between items-center">
+      <h2 class="text-3xl font-semibold">Painel de Análise</h2>
+    </header>
+
+    <!-- Dynamic Grid Area (Drag and Drop) -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <!-- Envolvendo o scanner de rede num card -->
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <h3 class="text-xl font-medium mb-4 border-b border-gray-200 dark:border-gray-700 pb-2">Network Tools</h3>
+        <app-network-scanner></app-network-scanner>
+      </div>
+      
+      <!-- Espaço reservado para os próximos componentes dinâmicos no grid -->
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-400">
+        Arraste novos widgets para cá
+      </div>
+    </div>
+  </main>
+</div>

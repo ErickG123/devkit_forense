@@ -16,7 +16,7 @@ jobs:
       new_tag: ${{ steps.get_tag.outputs.new_tag }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.CI_BYPASS_TOKEN }}
@@ -51,7 +51,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout bumped code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.bump-version.outputs.new_tag }}
 
@@ -87,7 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bumped code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.bump-version.outputs.new_tag }}
 
@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout bumped code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.bump-version.outputs.new_tag }}
 

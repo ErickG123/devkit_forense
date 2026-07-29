@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   bump-version:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
     outputs:
       new_tag: ${{ steps.get_tag.outputs.new_tag }}

@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - 'forenselab-ui/**'
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:

@@ -81,7 +81,7 @@ dependencies = [
     "trio==0.30.0",
     "trio-websocket==0.12.2",
     "typer==0.16.1",
-    "typing-inspection==0.4.1",
+    "typing-inspection==0.4.2",
     "typing_extensions==4.14.1",
     "tzdata==2025.2",
     "urllib3==2.5.0",

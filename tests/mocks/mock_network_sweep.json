@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "command": "sweep",
+  "timestamp": "2026-09-17T12:00:00Z",
+  "duration_ms": 85,
+  "data": {
+    "network": "192.168.1.0/24",
+    "total_scanned": 254,
+    "total_active": 3,
+    "active_hosts": [
+      {
+        "ip": "192.168.1.1",
+        "status": "ONLINE",
+        "method": "tcp-ack",
+        "port": 80,
+        "latency_ms": 2
+      },
+      {
+        "ip": "192.168.1.15",
+        "status": "ONLINE",
+        "method": "tcp-ack",
+        "port": 445,
+        "latency_ms": 5
+      },
+      {
+        "ip": "192.168.1.25",
+        "status": "ONLINE",
+        "method": "tcp-rst",
+        "port": 135,
+        "latency_ms": 4
+      }
+    ]
+  }
+}

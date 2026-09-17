@@ -1,9 +1,10 @@
-import ipwhois
 import typer
 
 
 def ip_info_lookup(ip):
     try:
+        import ipwhois
+
         obj = ipwhois.IPWhois(ip)
         res = obj.lookup_rdap()
 

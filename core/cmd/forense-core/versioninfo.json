@@ -1,0 +1,41 @@
+{
+  "FixedFileInfo": {
+    "FileVersion": {
+      "Major": 1,
+      "Minor": 7,
+      "Patch": 1,
+      "Build": 0
+    },
+    "ProductVersion": {
+      "Major": 1,
+      "Minor": 7,
+      "Patch": 1,
+      "Build": 0
+    },
+    "FileFlagsMask": "3f",
+    "FileFlags": "00",
+    "FileOS": "040004",
+    "FileType": "01",
+    "FileSubType": "00"
+  },
+  "StringFileInfo": {
+    "Comments": "ForenseLab Core Engine para Análise e Perícia Digital DFIR",
+    "CompanyName": "ForenseLab Open Source Project",
+    "FileDescription": "ForenseLab Digital Forensics & Incident Response Core Engine",
+    "FileVersion": "1.7.1.0",
+    "InternalName": "forense-core",
+    "LegalCopyright": "Copyright (C) 2026 ForenseLab Contributors. MIT License.",
+    "LegalTrademarks": "ForenseLab(TM)",
+    "OriginalFilename": "forense-core.exe",
+    "ProductName": "ForenseLab Forensic Toolkit",
+    "ProductVersion": "1.7.1.0"
+  },
+  "VarFileInfo": {
+    "Translation": {
+      "LangID": "0416",
+      "CharsetID": "04B0"
+    }
+  },
+  "IconPath": "",
+  "ManifestPath": ""
+}

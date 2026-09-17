@@ -23,7 +23,22 @@ def parse_eml_file(filepath):
     with open(filepath, "rb") as f:
         msg = BytesParser(policy=policy.default).parse(f)
 
+    # Extrai rotas Received e IP de origem (último hop ou primeiro Received da cadeia)
+    received_headers = msg.get_all("received", [])
+    origin_ip = None
+    import re
+    ip_pattern = re.compile(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b")
+    for r in received_headers:
+        match = ip_pattern.search(str(r))
+        if match:
+            candidate = match.group(0)
+            if not candidate.startswith(("127.", "10.", "192.168.", "172.16.")):
+                origin_ip = candidate
+            elif not origin_ip:
+                origin_ip = candidate
+
     email_data = {
+        "file": os.path.basename(filepath),
         "subject": msg.get("subject"),
         "from": msg.get("from"),
         "to": msg.get("to"),
@@ -31,6 +46,8 @@ def parse_eml_file(filepath):
         "bcc": msg.get("bcc"),
         "date": msg.get("date"),
         "message_id": msg.get("message-id"),
+        "origin_ip": origin_ip or "N/A",
+        "received_hops": len(received_headers),
         "attachments": [],
     }
 

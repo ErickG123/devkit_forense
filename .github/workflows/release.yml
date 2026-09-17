@@ -1,0 +1,174 @@
+name: Build & Release Platform Wheels (PyPI)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 1. Compilação Cruzada dos Binários Go (CGO_ENABLED=0 com flags de stripping)
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-go-binaries:
+    name: Build Go Binary (${{ matrix.goos }}-${{ matrix.goarch }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: windows
+            goarch: amd64
+            binary_name: forense-core.exe
+            artifact_name: core-windows-amd64
+            plat_name: win_amd64
+          - goos: linux
+            goarch: amd64
+            binary_name: forense-core
+            artifact_name: core-linux-amd64
+            plat_name: manylinux2014_x86_64
+          - goos: darwin
+            goarch: arm64
+            binary_name: forense-core
+            artifact_name: core-darwin-arm64
+            plat_name: macosx_11_0_arm64
+          - goos: darwin
+            goarch: amd64
+            binary_name: forense-core
+            artifact_name: core-darwin-amd64
+            plat_name: macosx_10_9_x86_64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache-dependency-path: core/go.sum
+
+      - name: Compile Go Core Engine
+        working-directory: core
+        env:
+          CGO_ENABLED: '0'
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          # Flags -s (omite tabela de símbolos) e -w (omite informações de debug DWARF)
+          # Reduz tamanho em até 40% e mitiga assinaturas genéricas de antivírus
+          go build -trimpath -ldflags="-s -w" -o ../dist_bin/${{ matrix.binary_name }} ./cmd/forense-core
+
+      - name: Upload Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist_bin/${{ matrix.binary_name }}
+          retention-days: 1
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 2. Empacotamento das Wheels Python por Plataforma Específica
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-platform-wheels:
+    name: Package Wheel (${{ matrix.plat_name }})
+    needs: build-go-binaries
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - artifact_name: core-windows-amd64
+            binary_name: forense-core.exe
+            plat_name: win_amd64
+          - artifact_name: core-linux-amd64
+            binary_name: forense-core
+            plat_name: manylinux2014_x86_64
+          - artifact_name: core-darwin-arm64
+            binary_name: forense-core
+            plat_name: macosx_11_0_arm64
+          - artifact_name: core-darwin-amd64
+            binary_name: forense-core
+            plat_name: macosx_10_9_x86_64
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tools
+        run: pip install --upgrade setuptools wheel build
+
+      - name: Download Go Binary Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: src/bin/
+
+      - name: Ensure Executable Permissions (Linux / macOS)
+        run: |
+          chmod +x src/bin/* || true
+
+      - name: Build Platform-Specific Wheel
+        run: |
+          # Força a geração da Wheel com a tag da plataforma alvo
+          python -m pip install wheel
+          python setup.py bdist_wheel --plat-name ${{ matrix.plat_name }} --dist-dir dist/
+
+      - name: Upload Built Wheel Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.plat_name }}
+          path: dist/*.whl
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # 3. Publicação Unificada no PyPI e GitHub Releases
+  # ─────────────────────────────────────────────────────────────────────────────
+  publish-release:
+    name: Publish Wheels to PyPI & GitHub Release
+    needs: build-platform-wheels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Twine
+        run: pip install twine
+
+      - name: Download All Platform Wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist/
+          merge-multiple: true
+
+      - name: List Artifacts to Publish
+        run: ls -la dist/
+
+      - name: Publish Wheels to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          twine upload dist/*.whl --verbose --skip-existing
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          gh release create "$TAG" dist/*.whl \
+            --title "Forensic CLI $TAG (Hybrid Architecture)" \
+            --notes "Release oficial com binários Go compilados estaticamente para Windows, Linux e macOS."

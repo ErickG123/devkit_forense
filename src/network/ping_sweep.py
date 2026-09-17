@@ -4,9 +4,8 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import typer
-from scapy.all import ARP, Ether, conf, srp
+import typer
 
-conf.verb = 0
 lock = threading.Lock()
 
 
@@ -27,9 +26,14 @@ def ping_host(ip: str) -> bool:
             )
             return "TTL=" in output.stdout.upper()
         else:
-            pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
-            ans, _ = srp(pkt, timeout=1, verbose=0)
-            return bool(ans)
+            try:
+                from scapy.all import ARP, Ether, srp
+
+                pkt = Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip)
+                ans, _ = srp(pkt, timeout=1, verbose=0)
+                return bool(ans)
+            except ImportError:
+                return False
     except Exception:
         return False
 

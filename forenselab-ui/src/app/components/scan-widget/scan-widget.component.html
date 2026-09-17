@@ -1,0 +1,152 @@
+<div class="forense-card">
+  <!-- Cabeçalho do Widget -->
+  <div class="card-header">
+    <div class="title-group">
+      <div class="icon-indicator" [ngClass]="status"></div>
+      <div>
+        <h2>Varredura de Rede Concorrente (Go Core Engine)</h2>
+        <p class="subtitle">Streaming assíncrono via SSE com contorno de sobrecarga e interrupção graciosa</p>
+      </div>
+    </div>
+    <div class="badge" [ngClass]="status">
+      {{ status | uppercase }}
+    </div>
+  </div>
+
+  <!-- Formulário de Parâmetros -->
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="target">Alvo (IP ou Hostname):</label>
+        <input
+          id="target"
+          type="text"
+          [(ngModel)]="target"
+          [disabled]="status === 'scanning'"
+          placeholder="Ex: 192.168.1.1 ou google.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="ports">Portas para Varredura:</label>
+        <input
+          id="ports"
+          type="text"
+          [(ngModel)]="ports"
+          [disabled]="status === 'scanning'"
+          placeholder="Ex: 80,443,8080 ou 1-1024"
+        />
+      </div>
+
+      <div class="form-group small">
+        <label for="workers">Workers:</label>
+        <input
+          id="workers"
+          type="number"
+          [(ngModel)]="workers"
+          [disabled]="status === 'scanning'"
+        />
+      </div>
+
+      <div class="form-group small">
+        <label for="timeout">Timeout (ms):</label>
+        <input
+          id="timeout"
+          type="number"
+          [(ngModel)]="timeoutMs"
+          [disabled]="status === 'scanning'"
+        />
+      </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="actions">
+      <button
+        *ngIf="status !== 'scanning'"
+        class="btn btn-primary"
+        (click)="startScan()"
+      >
+        <span class="btn-icon">⚡</span> Iniciar Varredura em Tempo Real
+      </button>
+
+      <button
+        *ngIf="status === 'scanning'"
+        class="btn btn-danger"
+        (click)="abortScan()"
+      >
+        <span class="btn-icon">🛑</span> Cancelar Varredura (Abort)
+      </button>
+
+      <span *ngIf="currentJobId" class="job-tag">Job: {{ currentJobId }}</span>
+    </div>
+
+    <!-- Painel de Progresso Ativo (Durante Scanning) -->
+    <div *ngIf="status === 'scanning' || status === 'completed' || status === 'aborted'" class="progress-section">
+      <div class="progress-info">
+        <span class="progress-msg">{{ progressMsg }}</span>
+        <span class="progress-pct">{{ progressPercent }}%</span>
+      </div>
+      <progress
+        id="scanBar"
+        class="custom-progress"
+        [value]="progressPercent"
+        max="100"
+      ></progress>
+    </div>
+
+    <!-- Mensagem de Erro -->
+    <div *ngIf="status === 'error' && errorMessage" class="alert-box error">
+      <strong>Erro na Varredura:</strong> {{ errorMessage }}
+    </div>
+
+    <!-- Mensagem de Cancelamento -->
+    <div *ngIf="status === 'aborted'" class="alert-box warning">
+      <strong>Operação Interrompida:</strong> O processo Go foi encerrado com sinal limpo e sem resíduos de socket.
+    </div>
+
+    <!-- Resultados: Tabela de Portas Abertas (Go Core Output) -->
+    <div *ngIf="status === 'completed'" class="results-section">
+      <div class="results-summary">
+        <div>
+          <h3>Resultados da Varredura</h3>
+          <p class="summary-text">
+            Alvo: <strong>{{ target }}</strong> |
+            Portas Abertas Encontradas: <strong class="highlight">{{ totalOpen }}</strong> |
+            Tempo de Execução: <strong>{{ durationMs }} ms</strong>
+          </p>
+        </div>
+      </div>
+
+      <div *ngIf="openPorts.length > 0; else noPortsFound" class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Porta</th>
+              <th>Protocolo</th>
+              <th>Status</th>
+              <th>Serviço</th>
+              <th>Banner Extraído</th>
+              <th>Latência</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of openPorts">
+              <td class="bold cyan">{{ item.port }}</td>
+              <td>{{ item.protocol | uppercase }}</td>
+              <td><span class="status-pill open">{{ item.state }}</span></td>
+              <td class="yellow">{{ item.service }}</td>
+              <td class="banner-cell">{{ item.banner || 'Nenhum banner capturado' }}</td>
+              <td class="right">{{ item.latency_ms }} ms</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #noPortsFound>
+        <div class="alert-box info">
+          Nenhuma porta aberta foi detectada para o alvo <strong>{{ target }}</strong> com os parâmetros informados.
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

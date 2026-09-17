@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "status": "success",
+  "command": "scan",
+  "timestamp": "2026-09-17T12:00:00Z",
+  "duration_ms": 150,
+  "data": {
+    "target": "192.168.1.50",
+    "scanned_ports": 4,
+    "total_open": 2,
+    "open_ports": [
+      {
+        "port": 80,
+        "protocol": "tcp",
+        "state": "open",
+        "service": "http",
+        "banner": "Apache/2.4.41 (Ubuntu)",
+        "latency_ms": 12
+      },
+      {
+        "port": 443,
+        "protocol": "tcp",
+        "state": "open",
+        "service": "https",
+        "banner": "nginx/1.18.0",
+        "latency_ms": 14
+      }
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "timestamp_utc": "2026-09-17T14:20:45Z",
+    "command": "scan",
+    "task_name": "Escaneando 127.0.0.1",
+    "python_duration_sec": 0.0698,
+    "python_peak_ram_mb": 0.0,
+    "go_duration_ms": 1,
+    "go_alloc_mb": 0.31,
+    "go_sys_mb": 10.27,
+    "go_num_gc": 0
+  },
+  {
+    "timestamp_utc": "2026-09-17T14:20:59Z",
+    "command": "scan",
+    "task_name": "Escaneando 127.0.0.1",
+    "python_duration_sec": 0.0196,
+    "python_peak_ram_mb": 0.0,
+    "go_duration_ms": 1,
+    "go_alloc_mb": 0.3,
+    "go_sys_mb": 6.27,
+    "go_num_gc": 0
+  }
+]

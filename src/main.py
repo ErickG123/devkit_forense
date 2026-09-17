@@ -59,8 +59,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from api.server import router as streaming_scan_router
+
 # Registro dos roteadores por feature
 app.include_router(network_router)
+app.include_router(streaming_scan_router)
 app.include_router(browser_router)
 app.include_router(mail_router)
 
@@ -85,8 +88,11 @@ def root():
 
 def _build_cli():
     """Constrói e retorna o app Typer. Importações pesadas ficam lazy."""
+    import os
     import typer
 
+    from analysis.intel import intel_app
+    from analysis.timeline import timeline_app
     from browser.cli import browser_app
     from mail.cli import email_app
     from network.cli import network_app
@@ -99,6 +105,7 @@ def _build_cli():
             "ForenseLab — DevKit Forense para análise de evidências digitais.\n\n"
             "Use [bold]--verbose[/bold] / [bold]-v[/bold] para habilitar o modo de "
             "rastreamento completo (DEBUG) no terminal.\n\n"
+            "Use [bold]--benchmark[/bold] para coletar métricas de CPU/RAM e runtime.\n\n"
             "Use [bold]--api[/bold] para subir o servidor REST via Uvicorn."
         ),
         rich_markup_mode="rich",
@@ -116,9 +123,20 @@ def _build_cli():
             ),
             is_eager=False,
         ),
+        benchmark: bool = typer.Option(
+            False,
+            "--benchmark",
+            help=(
+                "Ativa o modo benchmark: mede tempo de CPU/Clock (Python) e RAM (psutil) "
+                "em conjunto com o runtime Go, salvando as métricas em benchmark_results.json."
+            ),
+            is_eager=False,
+        ),
     ) -> None:
         """Opções globais — executadas antes de qualquer sub-comando."""
         configure_verbose(verbose)
+        if benchmark:
+            os.environ["FORENSE_BENCHMARK"] = "1"
 
     cli.add_typer(network_app, name="network", help="Ferramentas para análise e operações em redes")
     cli.add_typer(
@@ -130,6 +148,16 @@ def _build_cli():
         email_app,
         name="email",
         help="Ferramentas para análise e manipulação de dados de e-mail",
+    )
+    cli.add_typer(
+        intel_app,
+        name="intel",
+        help="Threat Intelligence e análise de ameaças (VirusTotal & YARA)",
+    )
+    cli.add_typer(
+        timeline_app,
+        name="timeline",
+        help="Super Timeline pericial consolidada a partir de múltiplos artefatos",
     )
     cli.add_typer(utils_app, name="utils", help="Funções utilitárias de apoio ao sistema")
     cli.add_typer(
@@ -150,6 +178,12 @@ def _build_cli():
         webbrowser.open("http://127.0.0.1:8000")
         uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
 
+    return cli
+
+
+def app():
+    """Entrypoint invocado diretamente pelo comando de console 'forensic-cli'."""
+    cli = _build_cli()
     cli()
 
 
@@ -170,4 +204,5 @@ if __name__ == "__main__":
         logger.info("Iniciando ForenseLab API em %s:%d (reload=%s)", host, port, reload)
         uvicorn.run("main:app", host=host, port=port, reload=reload)
     else:
-        _build_cli()
+        cli = _build_cli()
+        cli()

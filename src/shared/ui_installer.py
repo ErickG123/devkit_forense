@@ -3,7 +3,6 @@ import shutil
 import zipfile
 from pathlib import Path
 
-import requests
 from rich.progress import Progress
 
 UI_DIR = Path.home() / ".forenselab" / "ui"
@@ -20,6 +19,8 @@ def is_ui_installed() -> bool:
 
 
 def download_and_install_ui():
+    import requests
+
     UI_DIR.mkdir(parents=True, exist_ok=True)
 
     zip_path = UI_DIR / "ui_temp.zip"

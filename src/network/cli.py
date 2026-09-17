@@ -10,17 +10,9 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from network.arp_scan import arp_scan
-from network.dns_recon import dns_recon
-from network.fingerprinting import detect_os
-from network.ip_info import ip_info_lookup
-from network.network_map import run as run_network_map
-from network.ping_sweep import parse_network, ping_host
-from network.port_scanner import parse_ports, scan_host
-from network.smb_scan import smb_scan
-from network.snmp_scan import snmp_scan
-from network.traceroute import traceroute_host
 from shared.config import get as cfg_get
+from shared.binary_resolver import ForenseBinaryNotFoundError, ForenseSecurityBlockError
+from shared.engine import ForenseCoreError, run_go_core
 from shared.exporter import ExportFormat, export_data
 from shared.logger import get_logger
 
@@ -34,37 +26,38 @@ _DEFAULT_MAP_PORTS = cfg_get("network", "default_ports", default="21,22,80,443,4
 _DEFAULT_EXPORT_DIR = Path(cfg_get("export", "default_dir", default="./artefatos"))
 
 
-@network_app.command("map", help="Mapeia dispositivos ativos na rede e salva os resultados")
+@network_app.command("map", help="Mapeia topologia visual interativa da rede via Go Core e gera grafo HTML")
 def map(
     network: str = typer.Option(
-        ..., "--network", "-n", help="Range de IPs da rede. Ex: 192.168.1.1-254"
+        ..., "--network", "-n", help="Range de IPs ou CIDR da rede. Ex: 192.168.1.0/24 ou 192.168.1.1-254"
     ),
-    ports: str = typer.Option(
-        _DEFAULT_MAP_PORTS, "--ports", "-p", help="Portas para escanear em cada host."
-    ),
-    output_dir: str = typer.Option(
-        str(_DEFAULT_EXPORT_DIR / "network"),
+    output: Path = typer.Option(
+        Path("artefatos/network/network_map.html"),
         "--output",
         "-o",
-        help="Diretório para salvar os resultados",
+        help="Arquivo HTML de destino para o grafo interativo.",
+        resolve_path=True,
+    ),
+    no_browser: bool = typer.Option(
+        False, "--no-browser", help="Não abre o navegador automaticamente após gerar o mapa."
     ),
 ):
-    console.print(
-        f"[bold cyan][+] Iniciando mapeamento da rede {network} nas portas [{ports}]...[/bold cyan]"
-    )
     try:
-        with console.status("[bold green]Mapeando a rede...[/bold green]"):
-            result = run_network_map(network, ports, output_dir)
+        from network.mapper import run_network_mapping
 
-        if result and result.get("json_file"):
-            console.print(
-                f"[bold green]✅ Resultados salvos em: {result.get('json_file')} e {result.get('csv_file')}[/bold green]"
-            )
+        result_path = run_network_mapping(
+            network=network,
+            output_html=output,
+            open_browser=not no_browser,
+        )
+        console.print(f"[bold green][OK] Mapa visual gerado com sucesso em: {result_path}[/bold green]")
     except Exception as e:
-        console.print(Panel(f"[bold red]Erro ao mapear rede: {e}[/bold red]", title="Erro"))
+        logger.exception("Erro ao gerar mapa da rede.")
+        console.print(Panel(f"[bold red]Erro ao mapear topologia: {e}[/bold red]", title="Erro"))
+        raise typer.Exit(code=1)
 
 
-@network_app.command("scan", help="Realiza um scan de portas em um host específico")
+@network_app.command("scan", help="Realiza um scan de portas em um host específico utilizando o motor Go de alta performance")
 def scan(
     target: str = typer.Option(..., "--target", "-t", help="Alvo do scan (IP ou hostname)"),
     ports: str = typer.Option(
@@ -72,6 +65,17 @@ def scan(
         "--ports",
         "-p",
         help="Portas para escanear. Ex: '22,80,100-200'",
+    ),
+    workers: int = typer.Option(
+        500,
+        "--workers",
+        "-w",
+        help="Quantidade de workers paralelos no motor Go.",
+    ),
+    timeout: int = typer.Option(
+        1000,
+        "--timeout",
+        help="Timeout por porta em milissegundos.",
     ),
     export: ExportFormat | None = typer.Option(
         None,
@@ -86,31 +90,29 @@ def scan(
         resolve_path=True,
     ),
 ):
-    logger.info("Comando 'scan' iniciado — alvo: %s | portas: %s", target, ports)
+    logger.info("Comando 'scan' iniciado (Go Core) — alvo: %s | portas: %s", target, ports)
     try:
-        ports_to_scan = parse_ports(ports)
-        num_ports = len(ports_to_scan)
-        logger.debug("Portas parseadas: %d porta(s) → %s", num_ports, ports_to_scan[:10])
+        args = [
+            "--target",
+            target,
+            "--ports",
+            ports,
+            "--workers",
+            str(workers),
+            "--timeout",
+            str(timeout),
+        ]
+        response = run_go_core("scan", args=args, task_name=f"Escaneando {target}")
+        data = response.get("data", {})
+        results = data.get("open_ports", [])
+        duration_ms = response.get("duration_ms", 0)
 
-        if num_ports == 0:
-            logger.warning("Nenhuma porta válida fornecida para o scan em '%s'.", target)
-            console.print("[bold yellow]Nenhuma porta especificada para o scan.[/bold yellow]")
-            raise typer.Exit()
-
-        console.print(
-            f"[bold cyan][+] Iniciando scan em {num_ports} porta(s) de {target}...[/bold cyan]"
-        )
-
-        with console.status("[bold green]Escaneando portas...[/bold green]"):
-            logger.debug("Disparando scan_host para '%s'...", target)
-            results = scan_host(target=target, ports=ports)
-            logger.debug("scan_host concluído — %d resultado(s) retornado(s).", len(results))
-
-        table = Table(title=f"Resultados do Scan para {target}")
-        table.add_column("Porta", style="cyan")
+        table = Table(title=f"Resultados do Scan para {target} (Duração: {duration_ms}ms)")
+        table.add_column("Porta", style="cyan", justify="right")
         table.add_column("Protocolo", style="magenta")
         table.add_column("Status", style="green")
         table.add_column("Serviço", style="yellow")
+        table.add_column("Latência (ms)", justify="right", style="blue")
         table.add_column("Banner / Detalhes", style="white", overflow="fold")
 
         if not results:
@@ -121,18 +123,13 @@ def scan(
             return
 
         for res in results:
-            logger.debug(
-                "Porta aberta detectada: %s/%s — serviço: %s",
-                res["port"],
-                res["protocol"],
-                res["service"],
-            )
             table.add_row(
                 str(res["port"]),
-                res["protocol"],
-                res["status"],
-                res["service"],
-                res.get("banner", ""),
+                res.get("protocol", "tcp"),
+                res.get("state", "open").upper(),
+                res.get("service", "unknown"),
+                str(res.get("latency_ms", 0)),
+                res.get("banner", "") or "-",
             )
         console.print(table)
         logger.info(
@@ -142,74 +139,158 @@ def scan(
         if export:
             slug = target.replace(".", "_").replace(":", "-")
             dest = export_data(results, fmt=export, output_dir=export_dir, stem=f"scan_{slug}")
-            console.print(f"[bold green]\u2705 Exportado para: {dest}[/bold green]")
+            console.print(f"[bold green]✅ Exportado para: {dest}[/bold green]")
 
-    except ValueError as e:
-        logger.error("Erro de validação nos parâmetros do scan: %s", e)
-        console.print(Panel(f"[bold red]Erro de validação: {e}[/bold red]", title="Erro"))
+    except (ForenseSecurityBlockError, ForenseBinaryNotFoundError) as e:
+        logger.error("Falha de segurança ou executável bloqueado durante scan em '%s': %s", target, e)
+        raise typer.Exit(code=1)
+    except ForenseCoreError as e:
+        logger.error("Erro no motor Go durante scan em '%s': %s", target, e)
+        console.print(Panel(f"[bold red]{e}[/bold red]", title="Erro no Núcleo Go"))
+        raise typer.Exit(code=1)
     except Exception as e:
         logger.exception("Erro inesperado durante o scan em '%s'.", target)
         console.print(Panel(f"[bold red]Erro durante o scan: {e}[/bold red]", title="Erro"))
+        raise typer.Exit(code=1)
 
 
-@network_app.command("sweep", help="Verifica hosts ativos em um range de IPs via ping")
+@network_app.command("sweep", help="Verifica hosts ativos em um range de IPs via probe unprivileged")
 def sweep(
-    network: str = typer.Option(..., help="Range de IPs da rede. Exemplo: 192.168.1.1-254"),
+    network: str = typer.Option(
+        ...,
+        help="Range de IPs da rede. Exemplo: 192.168.1.1-254 ou 192.168.1.0/24",
+    ),
+    workers: int = typer.Option(100, "--workers", "-w", help="Quantidade de workers paralelos."),
+    timeout: int = typer.Option(400, "--timeout", help="Timeout de probe por host em ms."),
 ):
-    logger.info("Comando 'sweep' iniciado — range: %s", network)
+    logger.info("Comando 'sweep' iniciado (Go Core) — range: %s", network)
     try:
-        ips = parse_network(network)
-        logger.debug("%d endereço(s) IP no range '%s'.", len(ips), network)
-        alive_hosts = []
+        args = [
+            "--network",
+            network,
+            "--workers",
+            str(workers),
+            "--timeout",
+            str(timeout),
+        ]
+        response = run_go_core("sweep", args=args, task_name=f"Ping Sweep ({network})")
+        data = response.get("data", {})
+        alive_hosts = data.get("active_hosts", [])
+        duration_ms = response.get("duration_ms", 0)
 
-        with console.status("[bold green]Realizando ping sweep...[/bold green]"):
-            for ip in ips:
-                logger.debug("Pingando %s...", ip)
-                if ping_host(ip):
-                    logger.debug("Host ativo detectado: %s", ip)
-                    alive_hosts.append(ip)
+        logger.info(
+            "Sweep concluído — %d host(s) ativo(s) em '%s' (%dms).",
+            len(alive_hosts),
+            network,
+            duration_ms,
+        )
 
-        logger.info("Sweep concluído — %d host(s) ativo(s) em '%s'.", len(alive_hosts), network)
-
-        table = Table(title="Hosts Ativos")
+        table = Table(title=f"Hosts Ativos na Rede ({network}) - {duration_ms}ms")
         table.add_column("IP", style="cyan")
         table.add_column("Status", style="green")
+        table.add_column("Método", style="magenta")
+        table.add_column("Porta Probe", justify="right", style="yellow")
+        table.add_column("Latência (ms)", justify="right", style="blue")
 
         if alive_hosts:
             for host in alive_hosts:
-                table.add_row(host, "ONLINE")
+                table.add_row(
+                    host["ip"],
+                    host.get("status", "ONLINE"),
+                    host.get("method", "tcp-ack"),
+                    str(host.get("port", "-")),
+                    str(host.get("latency_ms", 0)),
+                )
             console.print(table)
         else:
-            logger.warning("Nenhum host respondeu ao ping no range '%s'.", network)
+            logger.warning("Nenhum host respondeu no range '%s'.", network)
             console.print("[bold yellow]Nenhum host ativo encontrado.[/bold yellow]")
+
+    except ForenseCoreError as e:
+        logger.error("Erro no motor Go durante sweep: %s", e)
+        console.print(Panel(f"[bold red]{e}[/bold red]", title="Erro no Núcleo Go"))
+        raise typer.Exit(code=1)
     except Exception as e:
         logger.exception("Erro inesperado durante o sweep no range '%s'.", network)
         console.print(Panel(f"[bold red]Erro durante o sweep: {e}[/bold red]", title="Erro"))
+        raise typer.Exit(code=1)
 
 
-@network_app.command("fingerprinting", help="Detecta SO, serviços e portas abertas em um host")
-def fingerprinting(ip: str = typer.Option(..., help="Endereço IP do host. Exemplo: 192.168.0.10")):
-    console.print(f"[bold cyan][+] Verificando se {ip} está ativo...[/bold cyan]")
+@network_app.command("fingerprinting", help="Detecta SO, serviços e banners em um host utilizando o motor Go")
+def fingerprinting(
+    ip: str = typer.Option(..., "--ip", "-i", help="Endereço IP do host alvo. Exemplo: 192.168.0.10"),
+    ports: str = typer.Option(
+        "21,22,23,25,53,80,110,135,139,143,443,445,3306,3389,5432,5900,8080",
+        "--ports",
+        "-p",
+        help="Portas para escanear via Go Core",
+    ),
+):
     try:
-        if not ping_host(ip):
-            console.print(f"[bold yellow][-] Host {ip} inatingível. Ping falhou.[/bold yellow]")
-            return
+        from network.fingerprinting import analyze_fingerprint
 
-        with console.status("[bold green]Escaneando portas e detectando SO...[/bold green]"):
-            ports = scan_host(ip)
-            result = detect_os(ip, ports=ports)
+        # 1. Executa o Port Scan ultrarrápido via Go Core
+        response = run_go_core(
+            "scan",
+            args=["--target", ip, "--ports", ports, "--workers", "200", "--timeout", "800"],
+            task_name=f"Varredura Go para Fingerprint ({ip})",
+        )
+        data = response.get("data", {})
+        open_ports = data.get("open_ports", [])
 
-        table = Table(title=f"Fingerprinting de {ip}")
-        table.add_column("Atributo", style="cyan")
-        table.add_column("Valor", style="magenta")
+        # 2. Executa análise contextual e banner grabbing direcionado
+        with console.status("[bold green]Analisando banners e inferindo sistema operacional...[/bold green]"):
+            result = analyze_fingerprint(ip, open_ports)
 
-        table.add_row("SO Detectado", result.get("os", "N/A"))
-        table.add_row("Serviços", ", ".join(result.get("services", [])) or "Nenhum")
-        table.add_row("Alertas", ", ".join(result.get("alerts", [])) or "Nenhum")
+        # 3. Renderiza tabela com dados ricos
+        table = Table(title=f"Fingerprinting de {ip} ({result.get('os')})")
+        table.add_column("Atributo", style="cyan", width=25)
+        table.add_column("Valor / Diagnóstico", style="white", overflow="fold")
+
+        table.add_row("SO Estimado", f"[bold green]{result.get('os')}[/bold green]")
+        table.add_row("Perfil do Host", result.get("host_type", "Desconhecido"))
+        table.add_row("Portas Abertas", f"{result.get('total_open')} porta(s)")
+
+        if result.get("ports"):
+            services_detail = "\n".join(
+                f"• Porta {p['port']} ({p['service']}): {p['banner']}" for p in result["ports"]
+            )
+            table.add_row("Serviços & Banners", services_detail)
+
+        if result.get("alerts"):
+            alerts_text = "\n".join(f"[bold red]⚠️ {a}[/bold red]" for a in result["alerts"])
+            table.add_row("Alertas Forenses", alerts_text)
 
         console.print(table)
+
+    except (ForenseSecurityBlockError, ForenseBinaryNotFoundError) as e:
+        logger.error("Bloqueio de segurança durante fingerprinting em '%s': %s", ip, e)
+        raise typer.Exit(code=1)
+    except ForenseCoreError as e:
+        console.print(Panel(f"[bold red]{e}[/bold red]", title="Erro no Go Core"))
+        raise typer.Exit(code=1)
     except Exception as e:
-        console.print(Panel(f"[bold red]Erro durante fingerprinting: {e}[/bold red]", title="Erro"))
+        logger.exception("Erro inesperado durante o fingerprinting em '%s'.", ip)
+        console.print(Panel(f"[bold red]Erro durante o fingerprinting: {e}[/bold red]", title="Erro"))
+        raise typer.Exit(code=1)
+
+
+@network_app.command(
+    "arpscan",
+    help="[DEPRECIADO] Redireciona automaticamente para o comando 'network sweep' nativo em Go",
+)
+def arp(
+    network: str = typer.Option(..., help="Range de IPs da rede. Exemplo: 192.168.1.1-254 ou 192.168.1.0/24"),
+    workers: int = typer.Option(100, "--workers", "-w", help="Quantidade de workers paralelos."),
+    timeout: int = typer.Option(400, "--timeout", help="Timeout de probe por host em ms."),
+):
+    console.print(
+        "[bold yellow][AVISO DE DEPRECIAÇÃO][/bold yellow] "
+        "[dim]O comando 'arpscan' (baseado em scapy/Npcap) foi depreciado em favor do motor unprivileged em Go.[/dim]\n"
+        f"[bold cyan][*] Redirecionando automaticamente para: [white]network sweep --network {network}[/white]...[/bold cyan]\n"
+    )
+    # Invoca internamente a implementação de sweep baseada no motor Go
+    sweep(network=network, workers=workers, timeout=timeout)
 
 
 @network_app.command("traceroute", help="Exibe o caminho (hops) até um domínio ou host")
@@ -218,6 +299,7 @@ def traceroute(
 ):
     console.print(f"[bold cyan][+] Iniciando traceroute para {domain}...[/bold cyan]")
     try:
+        from network.traceroute import traceroute_host
         with console.status("[bold green]Calculando rota...[/bold green]"):
             hops = traceroute_host(domain)
 
@@ -250,6 +332,7 @@ def arp(
     network: str = typer.Option(..., help="Range de IPs da rede. Exemplo: 192.168.1.1-254"),
 ):
     try:
+        from network.arp_scan import arp_scan
         with console.status("[bold green]Executando ARP Scan...[/bold green]"):
             result = arp_scan(network)
 
@@ -281,6 +364,7 @@ def dns(
     ),
 ):
     try:
+        from network.dns_recon import dns_recon
         with console.status("[bold green]Realizando reconhecimento DNS...[/bold green]"):
             result = dns_recon([target], output_dir=output_dir, with_subdomains=with_subdomains)
 
@@ -308,6 +392,7 @@ def ip_info(
     ip: str = typer.Option(..., help="IP ou hostname do destino. Exemplo: 8.8.8.8"),
 ):
     try:
+        from network.ip_info import ip_info_lookup
         with console.status("[bold green]Buscando informações do IP...[/bold green]"):
             result = ip_info_lookup(ip)
 
@@ -330,6 +415,7 @@ def smb(
     ip: str = typer.Option(..., help="IP ou hostname do destino. Exemplo: 192.168.0.10"),
 ):
     try:
+        from network.smb_scan import smb_scan
         with console.status("[bold green]Analisando serviços SMB...[/bold green]"):
             result = smb_scan([ip])
 
@@ -346,6 +432,7 @@ def snmp(
     ip: str = typer.Option(..., help="IP ou hostname do destino. Exemplo: 192.168.0.10"),
 ):
     try:
+        from network.snmp_scan import snmp_scan
         with console.status("[bold green]Executando varredura SNMP...[/bold green]"):
             result = snmp_scan(ip)
 

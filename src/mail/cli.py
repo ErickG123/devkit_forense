@@ -8,53 +8,73 @@ stdlib `email` do Python.
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from mail.email_parser import parse_eml_folder
 from mail.header_analysis import analyze_email_headers
 
 email_app = typer.Typer(help="Ferramentas para análise e manipulação de dados de e-mail")
 console = Console()
 
 
-@email_app.command("parse", help="Analisa arquivos .eml e extrai metadados, anexos e hashes.")
+@email_app.command(
+    "parse",
+    help="Analisa arquivo .eml ou pasta de evidências e extrai remetente, destinatário, IP de origem, cabeçalhos e anexos.",
+)
 def parse(
-    folder: Path = typer.Argument(..., help="Caminho da pasta contendo os arquivos .eml"),
+    file: Optional[Path] = typer.Option(
+        None, "--file", "-f", help="Caminho de um arquivo .eml específico para análise."
+    ),
+    folder: Optional[Path] = typer.Option(
+        None, "--folder", "-d", help="Caminho da pasta contendo múltiplos arquivos .eml."
+    ),
     output: Path = typer.Option(
         Path("artefatos/email"),
         "--output",
         "-o",
-        help="Diretório de saída para salvar o JSON com os resultados.",
+        help="Diretório de saída para salvar o JSON com os resultados e anexos.",
         resolve_path=True,
     ),
 ):
     try:
-        output.mkdir(parents=True, exist_ok=True)
+        from mail.email_parser import parse_eml_file, parse_eml_folder
 
-        with console.status("[bold green]Processando arquivos .eml...[/bold green]"):
-            results = parse_eml_folder(str(folder))
+        output.mkdir(parents=True, exist_ok=True)
+        results = []
+
+        if file and file.is_file():
+            with console.status(f"[bold green]Processando {file.name}...[/bold green]"):
+                results.append(parse_eml_file(str(file)))
+        elif folder and folder.is_dir():
+            with console.status("[bold green]Processando pasta de e-mails...[/bold green]"):
+                results = parse_eml_folder(str(folder))
+        else:
+            console.print(
+                "[bold red]Erro: Informe ao menos um arquivo (--file evidencia.eml) ou diretório (--folder pasta/)[/bold red]"
+            )
+            raise typer.Exit(code=1)
 
         if not results:
-            console.print(
-                "[bold yellow]Nenhum arquivo .eml encontrado ou processado.[/bold yellow]"
-            )
+            console.print("[bold yellow]Nenhum arquivo .eml válido encontrado ou processado.[/bold yellow]")
             return
 
-        table = Table(title=f"E-mails Processados ({len(results)} encontrados)")
-        table.add_column("De", style="cyan")
-        table.add_column("Para", style="magenta")
+        table = Table(title=f"Evidências de E-mail Analisadas ({len(results)} processado(s))")
+        table.add_column("Arquivo / ID", style="cyan")
+        table.add_column("De (Sender)", style="magenta")
+        table.add_column("IP Origem", style="yellow")
         table.add_column("Assunto", style="white", overflow="fold")
-        table.add_column("Data", style="yellow")
+        table.add_column("Data", style="blue")
         table.add_column("Anexos", style="green", justify="right")
 
         for em in results:
             table.add_row(
+                em.get("file") or em.get("message_id") or "N/A",
                 em.get("from") or "N/A",
-                em.get("to") or "N/A",
+                em.get("origin_ip") or "N/A",
                 em.get("subject") or "N/A",
                 em.get("date") or "N/A",
                 str(len(em.get("attachments", []))),
@@ -66,10 +86,11 @@ def parse(
         with open(saida, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=4, ensure_ascii=False)
 
-        console.print(f"[bold green]✅ Resultados salvos em: {saida}[/bold green]")
+        console.print(f"[bold green][OK] Resultados e anexos salvos em: {saida}[/bold green]")
 
     except Exception as e:
         console.print(Panel(f"[bold red]Erro ao processar e-mails: {e}[/bold red]", title="Erro"))
+        raise typer.Exit(code=1)
 
 
 @email_app.command(

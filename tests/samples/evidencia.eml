@@ -1,0 +1,26 @@
+Received: from mail.phishing-corp.com (203.0.113.45) by mx.google.com with ESMTPS id abc123xyz
+    for <vitima@empresa.com.br>; Thu, 17 Sep 2026 10:00:00 -0300
+From: "Departamento Financeiro" <cobranca@phishing-corp.com>
+To: vitima@empresa.com.br
+Subject: Urgente: Boleto em Aberto #99281
+Date: Thu, 17 Sep 2026 10:00:00 -0300
+Message-ID: <20260917-fin-99281@phishing-corp.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY_FORENSE"
+
+--BOUNDARY_FORENSE
+Content-Type: text/plain; charset="utf-8"
+
+Prezado cliente, segue em anexo a fatura atualizada para pagamento imediato.
+
+--BOUNDARY_FORENSE
+Content-Type: application/pdf; name="fatura_99281.pdf"
+Content-Disposition: attachment; filename="fatura_99281.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKJcTl8uXrCjEgMCBvYmoKPDwgL0xlbmd0aCAxMCA+Pgstream
+FalsoPDF!
+endstream
+endobj
+%%EOF
+--BOUNDARY_FORENSE--

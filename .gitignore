@@ -1,47 +1,114 @@
-chrome_logins.json
-edge_logins.json
+# ==============================================================================
+# ForenseLab - .gitignore Definitivo (Monorepo Híbrido Python + Go)
+# ==============================================================================
 
-55149_historico_chrome.json
-55149_historico_edge.json
+# ------------------------------------------------------------------------------
+# 1. Ambientes Virtuais e Interpretadores Python
+# ------------------------------------------------------------------------------
+.venv/
+venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
 
-amostras_forenses
-artefatos
-copias
-
-relatorio_forense.csv
-relatorio_forense.html
-
-recovered_files
-
+# ------------------------------------------------------------------------------
+# 2. Bytecode e Caches do Python
+# ------------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
 *$py.class
-
 *.so
 *.pyd
 
-venv/
-.env/
-.venv/
-
+# ------------------------------------------------------------------------------
+# 3. Empacotamento, Builds e Distribuição Python
+# ------------------------------------------------------------------------------
 build/
 dist/
 *.egg-info/
 .eggs/
-
+*.egg
 *.manifest
 *.spec
+pip-wheel-metadata/
 
-.vscode/
-
-cli_output
-
-output
-
-.pytest_cache
-
+# ------------------------------------------------------------------------------
+# 4. Ferramentas de Testes, Cobertura e Linters
+# ------------------------------------------------------------------------------
+.pytest_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 
-attachments
+# ------------------------------------------------------------------------------
+# 5. Binários, Compilação e Caches do Go Core
+# ------------------------------------------------------------------------------
+# Binários compilados locais gerados para empacotamento ou execução JIT
+src/bin/*
+!src/bin/.gitkeep
+core/dist_bin/
 
+# Binários avulsos do compilador Go
+*.exe
+*.dll
+*.dylib
+core/cmd/forense-core/forense-core
+core/cmd/forense-core/forense-core.exe
+
+# ------------------------------------------------------------------------------
+# 6. Evidências Periciais, Laudos, Dumps e Artefatos Locais
+# ------------------------------------------------------------------------------
+# Pasta padrão de exportação de laudos, capturas e resultados
+artefatos/
+amostras_forenses/
+copias/
+recovered_files/
+attachments/
+cli_output/
+output/
+
+# Arquivos de dados de testes periciais locais (senhas e históricos extraídos)
+*_logins.json
+*_historico_*.json
+historico_*.json
+downloads_*.json
+relatorio_forense.csv
+relatorio_forense.html
+*.html.sha256
+
+# Dumps temporários de SQLite criados em lock-bypass
+*.sqlite-wal
+*.sqlite-shm
+Login Data*
+History*
+
+# ------------------------------------------------------------------------------
+# 7. Logs de Auditoria e Depuração
+# ------------------------------------------------------------------------------
 forenselab.log
+forense_debug.log
+*.log
+
+# ------------------------------------------------------------------------------
+# 8. Arquivos Temporários de Sistema Operacional e Editores (IDE)
+# ------------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
